@@ -1,0 +1,123 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+.table th {
+    background-color: #000e3c; /* Azul marino */
+    color: white;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.btn {
+    background-color: #d8a800; /* Mostaza */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #b88a00; /* Tonalidad más oscura al pasar el mouse */
+}
+
+.disponible {
+    color: white;
+    background-color: #30c80e;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.ocupado {
+    color: white;
+    background-color: #c40303;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.con-problema {
+    color: white;
+    background-color: orange;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #555;
+}
+
+.header {
+    display: flex; /* Utilizar flexbox para alinear elementos */
+    align-items: center; /* Alinear verticalmente al centro */
+}
+
+.logo-img {
+    max-width: 100px; /* Tamaño del logo */
+    height: auto; /* Mantener la proporción */
+    margin-right: 10px; /* Espacio a la derecha del logo */
+}
+
+h1 {
+    flex: 1; /* Permitir que el título ocupe el espacio restante */
+    text-align: center; /* Centrar el texto del título */
+    margin: 0; /* Eliminar margen del h1 */
+}
