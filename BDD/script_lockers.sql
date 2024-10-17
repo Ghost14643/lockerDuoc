@@ -168,6 +168,8 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
+
+
 INSERT INTO `lockersBD`.`jornada` (`idJornada`, `nombreJornada`) VALUES (DEFAULT, 'Diurno');
 INSERT INTO `lockersBD`.`jornada` (`idJornada`, `nombreJornada`) VALUES (DEFAULT, 'Vespertino');
 INSERT INTO `lockersBD`.`jornada` (`idJornada`, `nombreJornada`) VALUES (DEFAULT, 'Híbrido');
@@ -191,6 +193,9 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`piso_edificio` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
+
+ALTER TABLE `lockersBD`.`piso_edificio` 
+ADD UNIQUE (`idPiso`);
 
 INSERT INTO `lockersBD`.`piso_edificio` (`idPiso`, `pisoCol`, `edificio_instituto_idEdificioInstituto`) VALUES (DEFAULT, 1, 1);
 INSERT INTO `lockersBD`.`piso_edificio` (`idPiso`, `pisoCol`, `edificio_instituto_idEdificioInstituto`) VALUES (DEFAULT, '2', '1');
@@ -329,6 +334,11 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`alumno` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+ALTER TABLE `lockersbd`.`alumno` 
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`runAlumno`);
+;
+
 INSERT INTO `lockersBD`.`alumno` VALUES ('21300379', '8', 'hec.lopez@duocuc.cl', 'Héctor', 'López', 'González', 2023, 1, 1, 1, 1);
 
 -- -----------------------------------------------------
@@ -351,6 +361,12 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`administrador` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+ALTER TABLE `lockersbd`.`administrador` 
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`runAdministrador`);
+;
+
+
 INSERT INTO `lockersBD`.`administrador` VALUES ('22032622', '8', 'het0c', 'admin', 1);
 
 -- -----------------------------------------------------
@@ -371,6 +387,7 @@ INSERT INTO `lockersBD`.`estadoReserva` VALUES (DEFAULT, 'Cancelado');
 -- -----------------------------------------------------
 -- Table `lockersBD`.`reserva_alumno`
 -- -----------------------------------------------------
+
 DROP TABLE IF EXISTS `lockersBD`.`reserva_alumno` ;
 
 CREATE TABLE IF NOT EXISTS `lockersBD`.`reserva_alumno` (
@@ -415,6 +432,92 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`reserva_alumno` (
     ON UPDATE NO ACTION
 )
 ENGINE = InnoDB;
+
+ALTER TABLE `lockersbd`.`reserva_alumno` 
+ADD INDEX `fk_reserva_alumno_runAlumno1_idx` (`alumno_runAlumno` ASC) VISIBLE;
+;
+ALTER TABLE `lockersbd`.`reserva_alumno` 
+ADD CONSTRAINT `fk_reserva_alumno_runAlumno1`
+  FOREIGN KEY (`alumno_runAlumno`)
+  REFERENCES `lockersbd`.`alumno` (`runAlumno`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+INSERT INTO `lockersbd`.`reserva` (`idReserva`, `codigoQr`) VALUES ('1', '651df51fdhc1b6fg');
+INSERT INTO `lockersbd`.`reserva_alumno` (`idReservaAlumno`, `fecha_inicio`, `fecha_fin`, `locker_idLocker`, `locker_piso_edificio_idPiso`, `locker_estado_locker_idEstadoLocker`, `alumno_runAlumno`, `alumno_jornada_idJornada`, `alumno_carrera_idCarrera`, `alumno_carrera_tipo_carrera_idTipoCarrera`, `alumno_carrera_escuela_idEscuela`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES ('1', '2024-10-17', '2024-10-17', '3', '2', '2', '21300379', '1', '25', '2', '6', '1', '1');
+
+
+
+-- -----------------------------------------------------
+-- Trigger `lockersbd`.`reserva_alumno_AFTER_INSERT`
+-- -----------------------------------------------------
+
+DROP TRIGGER IF EXISTS `lockersbd`.`reserva_alumno_AFTER_INSERT`;
+
+DELIMITER $$
+USE `lockersbd`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `lockersbd`.`reserva_alumno_AFTER_INSERT` AFTER INSERT ON `reserva_alumno` FOR EACH ROW
+BEGIN
+	DECLARE
+	v_idLocker int(3);
+    
+	SELECT locker_idLocker
+    INTO v_idLocker
+    FROM lockersbd.reserva_alumno
+    WHERE idReservaAlumno = NEW.idReservaAlumno;
+    
+	UPDATE locker SET estado_locker_idEstadoLocker = 2 WHERE idLocker =  v_idLocker;
+END$$
+DELIMITER ;
+ 
+ 
+-- -----------------------------------------------------
+-- TABLE `lockersbd`.`cancelacion_reserva`
+-- -----------------------------------------------------
+
+CREATE TABLE `lockersbd`.`cancelacion_reserva` (
+  `idCancelacion_reserva` INT NOT NULL AUTO_INCREMENT,
+  `administrador_runAdministrador` INT NOT NULL,
+  `reserva_alumno_idReservaAlumno` INT NOT NULL,
+  `observacion` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`idCancelacion_reserva`),
+  INDEX `fk_administrador_runAdministrador1_idx` (`administrador_runAdministrador` ASC) VISIBLE,
+  CONSTRAINT `fk_administrador_runAdministrador1`
+    FOREIGN KEY (`administrador_runAdministrador`)
+    REFERENCES `lockersbd`.`administrador` (`runAdministrador`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reserva_alumno_idReservaAlumno1`
+    FOREIGN KEY (`reserva_alumno_idReservaAlumno`)
+    REFERENCES `lockersbd`.`reserva_alumno` (`idReservaAlumno`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+-- -----------------------------------------------------
+-- TRIGGER `lockersbd`.`cancelacion_reserva_AFTER_INSERT`
+-- -----------------------------------------------------
+
+DROP TRIGGER IF EXISTS `lockersbd`.`cancelacion_reserva_AFTER_INSERT`;
+
+DELIMITER $$
+USE `lockersbd`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `lockersbd`.`cancelacion_reserva_AFTER_INSERT` AFTER INSERT ON `cancelacion_reserva` FOR EACH ROW
+BEGIN
+	DECLARE
+	v_idLocker int;
+    
+	SELECT locker_idLocker
+    INTO v_idLocker
+    FROM lockersbd.reserva_alumno
+    WHERE idReservaAlumno = NEW.reserva_alumno_idReservaAlumno;
+
+
+	UPDATE locker SET estado_locker_idEstadoLocker = 1 WHERE idLocker = v_idLocker;
+END$$
+DELIMITER ;
+
+    
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

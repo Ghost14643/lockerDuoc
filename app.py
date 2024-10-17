@@ -8,7 +8,7 @@ CORS(app)  # Habilita CORS
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Isa.2980246'
+app.config['MYSQL_PASSWORD'] = 'jDXgT61EhWinGAx0Wy2H'
 app.config['MYSQL_DB'] = 'lockersbd'  # Asegúrate de que el nombre de la base de datos es correcto
 
 mysql = MySQL(app)
@@ -85,15 +85,30 @@ def get_lockers():
 def reserva():
     return render_template('reserva.html')
 
+
 # Ruta para reservar un locker
 @app.route('/reserve', methods=['POST'])
+# def reserve_locker():
+#     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 2 WHERE idLocker = %s", (locker_id,))  # 2 para 'Ocupado'
+#     mysql.connection.commit()
+#     cursor.close()
+
+
 def reserve_locker():
     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
+    rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
+    start_date = request.form['startDate']
+    end_date = request.form['endDate']
+    estado = '1'
+    tipo_reserva = '1'
+
     cursor = mysql.connection.cursor()
-    cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 2 WHERE idLocker = %s", (locker_id,))  # 2 para 'Ocupado'
+    cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
     mysql.connection.commit()
     cursor.close()
-    
+
     return redirect('/')  # Redirige al índice después de reservar
 
 # Ruta para mostrar la página de cancelación
@@ -101,15 +116,29 @@ def reserve_locker():
 def cancelacion():
     return render_template('cancelacion.html')
 
+
+
 # Ruta para cancelar una reserva
 @app.route('/cancel', methods=['POST'])
+# def cancel_reservation():
+#     locker_id = request.form['idLocker']  # Obtener el ID del locker desde el formulario
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 1 WHERE idLocker = %s", (locker_id,))  # 1 para 'Disponible'
+#     mysql.connection.commit()
+#     cursor.close()
+    
 def cancel_reservation():
-    locker_id = request.form['idLocker']  # Obtener el ID del locker desde el formulario
+    idReserva = request.form['idReserva']
+    rutAdmin = request.form['rutAdmin']
+    observacion = request.form['observacion']
     cursor = mysql.connection.cursor()
-    cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 1 WHERE idLocker = %s", (locker_id,))  # 1 para 'Disponible'
+    cursor.execute("INSERT INTO `lockersbd`.`cancelacion_reserva` (`administrador_runAdministrador`, `reserva_alumno_idReservaAlumno`, `observacion`) VALUES (%s , %s , %s)" , (rutAdmin, idReserva ,  observacion)) 
     mysql.connection.commit()
     cursor.close()
-    
+
+
+
+
     return redirect('/')  # Redirige al índice después de cancelar
 
 if __name__ == '__main__':

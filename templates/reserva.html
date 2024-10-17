@@ -14,8 +14,13 @@
             <h1>Estado de los Lockers</h1>
         </div>
         <div class="login-container">
+            
             <h2>Reservar Locker</h2>
             <form action="/reserve" method="POST">
+                <label for="rutEstudiante">Rut del estudiante:</label>
+                <input type="number" id="rutEstudiante" name="rutEstudiante" required>
+                <br><br>
+            
                 <label for="numeroLocker">Número de Locker:</label>
                 <input type="number" id="numeroLocker" name="numeroLocker" required>
 
@@ -23,7 +28,23 @@
                 <input type="number" id="piso" name="piso" required>
 
                 <button type="submit">Reservar</button>
+
+
+
+
+
+                <br><br>
+
+                    <label for="startDate">Desde:</label>
+                    <input type="date" id="start" name="startDate" required>
+                    
+                    <label for="startDate">Hasta:</label>
+                    <input type="date" id="end" name="endDate" required>
+
+            
+
             </form>
+
         </div>
     </div>
 </body>
