@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`carrera` (
   `nombreCarrera` VARCHAR(100) NOT NULL,
   `tipo_carrera_idTipoCarrera` INT NOT NULL,
   `escuela_idEscuela` INT NOT NULL,
-  PRIMARY KEY (`idCarrera`, `tipo_carrera_idTipoCarrera`, `escuela_idEscuela`),
+  PRIMARY KEY (`idCarrera`),
   INDEX `fk_carrera_tipo_carrera_idx` (`tipo_carrera_idTipoCarrera` ASC) VISIBLE,
   INDEX `fk_carrera_escuela1_idx` (`escuela_idEscuela` ASC) VISIBLE,
   CONSTRAINT `fk_carrera_tipo_carrera`
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`piso_edificio` (
   `idPiso` INT NOT NULL AUTO_INCREMENT,
   `pisoCol` INT NOT NULL,
   `edificio_instituto_idEdificioInstituto` INT NOT NULL,
-  PRIMARY KEY (`idPiso`, `edificio_instituto_idEdificioInstituto`),
+  PRIMARY KEY (`idPiso`),
   INDEX `fk_piso_edificio_edificio_instituto1_idx` (`edificio_instituto_idEdificioInstituto` ASC) VISIBLE,
   CONSTRAINT `fk_piso_edificio_edificio_instituto1`
     FOREIGN KEY (`edificio_instituto_idEdificioInstituto`)
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`locker` (
   `numeroLocker` INT NOT NULL,
   `piso_edificio_idPiso` INT NOT NULL,
   `estado_locker_idEstadoLocker` INT NOT NULL,
-  PRIMARY KEY (`idLocker`, `piso_edificio_idPiso`, `estado_locker_idEstadoLocker`),
+  PRIMARY KEY (`idLocker`),
   INDEX `fk_locker_piso_edificio1_idx` (`piso_edificio_idPiso` ASC) VISIBLE,
   INDEX `fk_locker_estado_locker1_idx` (`estado_locker_idEstadoLocker` ASC) VISIBLE,
   CONSTRAINT `fk_locker_piso_edificio1`
@@ -238,57 +238,6 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`locker` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
-
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '1', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '2', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '3', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '4', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '5', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '6', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '7', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '8', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '9', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '10', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '11', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '12', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '13', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '14', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '15', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '16', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '17', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '18', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '19', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '20', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '21', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '22', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '23', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '24', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '25', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '26', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '27', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '28', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '29', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '30', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '31', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '32', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '33', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '34', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '35', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '36', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '37', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '38', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '39', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '40', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '41', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '42', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '43', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '44', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '45', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '46', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '47', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '48', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '49', '2', '1');
-INSERT INTO `lockersBD`.`locker` VALUES (DEFAULT, '50', '2', '1');
 
 -- -----------------------------------------------------
 -- Table `lockersBD`.`reserva`
@@ -319,25 +268,36 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`alumno` (
   `carrera_idCarrera` INT NOT NULL,
   `carrera_tipo_carrera_idTipoCarrera` INT NOT NULL,
   `carrera_escuela_idEscuela` INT NOT NULL,
-  PRIMARY KEY (`runAlumno`, `jornada_idJornada`, `carrera_idCarrera`, `carrera_tipo_carrera_idTipoCarrera`, `carrera_escuela_idEscuela`),
+  PRIMARY KEY (`runAlumno`),
   INDEX `fk_alumno_jornada1_idx` (`jornada_idJornada` ASC) VISIBLE,
   INDEX `fk_alumno_carrera1_idx` (`carrera_idCarrera` ASC, `carrera_tipo_carrera_idTipoCarrera` ASC, `carrera_escuela_idEscuela` ASC) VISIBLE,
+  INDEX `fk_alumno_tipo_carrera1_idx` (`carrera_tipo_carrera_idTipoCarrera` ASC) VISIBLE,
+  INDEX `fk_alumno_escuela1_idx` (`carrera_escuela_idEscuela` ASC) VISIBLE,
   CONSTRAINT `fk_alumno_jornada1`
     FOREIGN KEY (`jornada_idJornada`)
     REFERENCES `lockersBD`.`jornada` (`idJornada`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_alumno_carrera1`
-    FOREIGN KEY (`carrera_idCarrera` , `carrera_tipo_carrera_idTipoCarrera` , `carrera_escuela_idEscuela`)
-    REFERENCES `lockersBD`.`carrera` (`idCarrera` , `tipo_carrera_idTipoCarrera` , `escuela_idEscuela`)
+    FOREIGN KEY (`carrera_idCarrera`)
+    REFERENCES `lockersBD`.`carrera` (`idCarrera`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION,
+ CONSTRAINT `fk_alumno_tipo_carrera1`
+  FOREIGN KEY (`carrera_tipo_carrera_idTipoCarrera`)
+  REFERENCES `lockersbd`.`tipo_carrera` (`idTipoCarrera`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_alumno_escuela1`
+  FOREIGN KEY (`carrera_escuela_idEscuela`)
+  REFERENCES `lockersbd`.`escuela` (`idEscuela`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION
+    )
 
-ALTER TABLE `lockersbd`.`alumno` 
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (`runAlumno`);
-;
+
+
+ENGINE = InnoDB;
 
 INSERT INTO `lockersBD`.`alumno` VALUES ('21300379', '8', 'hec.lopez@duocuc.cl', 'Héctor', 'López', 'González', 2023, 1, 1, 1, 1);
 
@@ -352,7 +312,7 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`administrador` (
   `pNombreAdministrador` VARCHAR(45) NOT NULL,
   `apPaternoAdmin` VARCHAR(45) NOT NULL,
   `code_offline_idCodeOffline` INT NOT NULL,
-  PRIMARY KEY (`runAdministrador`, `code_offline_idCodeOffline`),
+  PRIMARY KEY (`runAdministrador`),
   INDEX `fk_administrador_code_offline1_idx` (`code_offline_idCodeOffline` ASC) VISIBLE,
   CONSTRAINT `fk_administrador_code_offline1`
     FOREIGN KEY (`code_offline_idCodeOffline`)
@@ -361,10 +321,7 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`administrador` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-ALTER TABLE `lockersbd`.`administrador` 
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (`runAdministrador`);
-;
+
 
 
 INSERT INTO `lockersBD`.`administrador` VALUES ('22032622', '8', 'het0c', 'admin', 1);
@@ -388,64 +345,43 @@ INSERT INTO `lockersBD`.`estadoReserva` VALUES (DEFAULT, 'Cancelado');
 -- Table `lockersBD`.`reserva_alumno`
 -- -----------------------------------------------------
 
-DROP TABLE IF EXISTS `lockersBD`.`reserva_alumno` ;
 
-CREATE TABLE IF NOT EXISTS `lockersBD`.`reserva_alumno` (
+CREATE TABLE IF NOT EXISTS `lockersbd`.`reserva_alumno` (
   `idReservaAlumno` INT NOT NULL AUTO_INCREMENT,
   `fecha_inicio` DATE NOT NULL,
   `fecha_fin` DATE NOT NULL,
   `locker_idLocker` INT NOT NULL,
-  `locker_piso_edificio_idPiso` INT NOT NULL,
-  `locker_estado_locker_idEstadoLocker` INT NOT NULL,
   `alumno_runAlumno` INT NOT NULL,
-  `alumno_jornada_idJornada` INT NOT NULL,
-  `alumno_carrera_idCarrera` INT NOT NULL,
-  `alumno_carrera_tipo_carrera_idTipoCarrera` INT NOT NULL,
-  `alumno_carrera_escuela_idEscuela` INT NOT NULL,
   `estadoReserva_idEstadoReserva` INT NOT NULL,
   `reserva_idReserva` INT NOT NULL,
   PRIMARY KEY (`idReservaAlumno`),
-  UNIQUE INDEX `idx_unq_reserva_alumno` (`alumno_runAlumno`, `fecha_inicio`, `fecha_fin`),
-  INDEX `fk_reserva_alumno_locker1_idx` (`locker_idLocker` ASC, `locker_piso_edificio_idPiso` ASC, `locker_estado_locker_idEstadoLocker` ASC) INVISIBLE,
-  INDEX `fk_reserva_alumno_alumno1_idx` (`alumno_runAlumno` ASC, `alumno_jornada_idJornada` ASC, `alumno_carrera_idCarrera` ASC, `alumno_carrera_tipo_carrera_idTipoCarrera` ASC, `alumno_carrera_escuela_idEscuela` ASC) VISIBLE,
-  INDEX `fk_reserva_alumno_estadoReserva1_idx` (`estadoReserva_idEstadoReserva` ASC) INVISIBLE,
+  INDEX `fk_reserva_alumno_estadoReserva1_idx` (`estadoReserva_idEstadoReserva` ASC) VISIBLE,
+  INDEX `fk_reserva_alumno_locker1_idx` (`locker_idLocker` ASC) VISIBLE,
   INDEX `fk_reserva_alumno_reserva1_idx` (`reserva_idReserva` ASC) VISIBLE,
-  CONSTRAINT `fk_reserva_alumno_locker1`
-    FOREIGN KEY (`locker_idLocker` , `locker_piso_edificio_idPiso` , `locker_estado_locker_idEstadoLocker`)
-    REFERENCES `lockersBD`.`locker` (`idLocker` , `piso_edificio_idPiso` , `estado_locker_idEstadoLocker`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_reserva_alumno_alumno1`
-    FOREIGN KEY (`alumno_runAlumno` , `alumno_jornada_idJornada` , `alumno_carrera_idCarrera` , `alumno_carrera_tipo_carrera_idTipoCarrera` , `alumno_carrera_escuela_idEscuela`)
-    REFERENCES `lockersBD`.`alumno` (`runAlumno` , `jornada_idJornada` , `carrera_idCarrera` , `carrera_tipo_carrera_idTipoCarrera` , `carrera_escuela_idEscuela`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+  INDEX `fk_reserva_alumno_runAlumno1_idx` (`alumno_runAlumno` ASC) VISIBLE,
   CONSTRAINT `fk_reserva_alumno_estadoReserva1`
     FOREIGN KEY (`estadoReserva_idEstadoReserva`)
-    REFERENCES `lockersBD`.`estadoReserva` (`idEstadoReserva`)
+    REFERENCES `lockersbd`.`estadoreserva` (`idEstadoReserva`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reserva_alumno_locker1`
+    FOREIGN KEY (`locker_idLocker`)
+    REFERENCES `lockersbd`.`locker` (`idLocker`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_reserva_alumno_reserva1`
     FOREIGN KEY (`reserva_idReserva`)
-    REFERENCES `lockersBD`.`reserva` (`idReserva`)
+    REFERENCES `lockersbd`.`reserva` (`idReserva`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = InnoDB;
-
-ALTER TABLE `lockersbd`.`reserva_alumno` 
-ADD INDEX `fk_reserva_alumno_runAlumno1_idx` (`alumno_runAlumno` ASC) VISIBLE;
-;
-ALTER TABLE `lockersbd`.`reserva_alumno` 
-ADD CONSTRAINT `fk_reserva_alumno_runAlumno1`
-  FOREIGN KEY (`alumno_runAlumno`)
-  REFERENCES `lockersbd`.`alumno` (`runAlumno`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reserva_alumno_runAlumno1`
+    FOREIGN KEY (`alumno_runAlumno`)
+    REFERENCES `lockersbd`.`alumno` (`runAlumno`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 
 INSERT INTO `lockersbd`.`reserva` (`idReserva`, `codigoQr`) VALUES ('1', '651df51fdhc1b6fg');
-INSERT INTO `lockersbd`.`reserva_alumno` (`idReservaAlumno`, `fecha_inicio`, `fecha_fin`, `locker_idLocker`, `locker_piso_edificio_idPiso`, `locker_estado_locker_idEstadoLocker`, `alumno_runAlumno`, `alumno_jornada_idJornada`, `alumno_carrera_idCarrera`, `alumno_carrera_tipo_carrera_idTipoCarrera`, `alumno_carrera_escuela_idEscuela`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES ('1', '2024-10-17', '2024-10-17', '3', '2', '2', '21300379', '1', '25', '2', '6', '1', '1');
 
 
 
@@ -517,7 +453,37 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- -----------------------------------------------------
+-- PROCEDURE p_crearLocker
+-- -----------------------------------------------------
+
+DELIMITER //
+CREATE PROCEDURE p_crearLocker(IN cantLockers INT, IN idPiso INT)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+    WHILE i <= cantlockers DO
     
+		INSERT INTO `lockersbd`.`locker` (`numeroLocker`, `piso_edificio_idPiso`, `estado_locker_idEstadoLocker`)
+		VALUES ( i, idPiso, '1');
+		SET i = i+1;
+        
+	END WHILE;
+END //
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- PROCEDURE truncarLocker
+-- -----------------------------------------------------
+
+DELIMITER //
+CREATE PROCEDURE truncarLocker()
+BEGIN
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE locker;
+SET FOREIGN_KEY_CHECKS = 1;
+
+END //
+DELIMITER ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

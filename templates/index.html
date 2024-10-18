@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estado de los Lockers</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- <script src="{{ url_for('static', filename='JS/jscript.js') }}"></script> -->
 </head>
 <body>
     <div class="container">
@@ -13,13 +14,42 @@
             <img src="{{ url_for('static', filename='img/LockersDuoc.png') }}" alt="Logo Lockers Duoc" class="logo-img">
             <h1>Estado de los Lockers</h1>
         </div>
-        
+
+        <!-- Formulario de Filtro -->
+        <form action="/" method="GET" class="filter-form">
+            <div class="form-group">
+                <label for="estado">Filtrar por estado:</label>
+                <select id="estado" name="estado" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Ocupado">Ocupado</option>
+                    <option value="Con Problema">Con Problema</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="piso">Filtrar por piso:</label>
+                <input type="text" id="piso" name="piso" class="form-control" placeholder="Ej: 1, 2, 3...">
+
+                <label for="edificio">Filtrar por edificio:</label>
+                <select id="edificio" name="edificio" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="Y">Y</option>
+                    <option value="W">W</option>
+                    <option value="Z">Z</option>
+                </select>
+
+            </div>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID del Locker</th>
                     <th>Número del Locker</th>
                     <th>Piso del Edificio</th>
+                    <th>Letra Edificio</th>
                     <th>Estado del Locker</th>
                 </tr>
             </thead>
@@ -29,7 +59,8 @@
                     <td>{{ locker[0] }}</td>
                     <td>{{ locker[1] }}</td>
                     <td>{{ locker[2] }}</td>
-                    <td class="{{ 'disponible' if locker[3] == 'Disponible' else 'ocupado' if locker[3] == 'Ocupado' else 'con-problema' }}">{{ locker[3] }}</td>
+                    <td>{{ locker[3] }}</td>
+                    <td class="{{ 'disponible' if locker[4] == 'Disponible' else 'ocupado' if locker[4] == 'Ocupado' else 'con-problema' }}">{{ locker[4] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -56,5 +87,7 @@
             <button type="submit" class="btn btn-primary">Agregar Locker</button>
         </form>
     </div>
+
+
 </body>
 </html>

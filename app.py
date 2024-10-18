@@ -15,14 +15,63 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
+    # Recibir filtros desde el formulario
+    estado = request.args.get('estado')
+    piso = request.args.get('piso')
+    edificio = request.args.get('edificio')
+
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT idLocker, numeroLocker, piso_edificio_idPiso, estado_locker_idEstadoLocker FROM locker")
-    datos = cursor.fetchall()
+
+    # Construir la consulta con filtros
+    query = """
+    SELECT idLocker, numeroLocker, pe.pisoCol, l.piso_edificio_idPiso, estado_locker_idEstadoLocker
+    FROM locker l 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso 
+    WHERE 1=1
+    """
+    params = []
+
+    if estado:
+        query += " AND estado_locker_idEstadoLocker = %s"
+        if estado == "Disponible":
+            params.append(1)
+        elif estado == "Ocupado":
+            params.append(2)
+        elif estado == "Con Problema":
+            params.append(3)
     
+    if piso:
+        query += " AND pe.pisoCol = %s"
+        params.append(piso)
+
+    if edificio:
+        query += " AND piso_edificio_idPiso "
+        if edificio == "Y":
+            query += "<= 5"
+        elif edificio == "W":
+            query += " BETWEEN 6 AND 10"
+        elif edificio == "Z":
+            query += " BETWEEN 11 AND 14"
+
+    cursor.execute(query, params)
+    datos = cursor.fetchall()
+
     # Traducir el estado
     translated_data = []
     for locker in datos:
-        estado = locker[3]  # estado_locker_idEstadoLocker
+        idLocker, numeroLocker, pisoCol, idPiso, estado = locker
+        
+        # Determina el edificio
+        if 1 <= idPiso <= 5:
+            estado_edificio = "Y"
+        elif 6 <= idPiso <= 10:
+            estado_edificio = "W"
+        elif 11 <= idPiso <= 14:
+            estado_edificio = "Z"
+        else:
+            estado_edificio = "Desconocido"
+
+        # Traducir el estado del locker
         if estado == 1:
             estado_texto = "Disponible"
         elif estado == 2:
@@ -32,7 +81,7 @@ def index():
         else:
             estado_texto = "Desconocido"
 
-        translated_data.append((locker[0], locker[1], locker[2], estado_texto))  # Agregar estado traducido
+        translated_data.append((idLocker, numeroLocker, pisoCol, estado_edificio, estado_texto))
 
     cursor.close()
     return render_template('index.html', datos=translated_data)
@@ -54,13 +103,26 @@ def add_locker():
 @app.route('/api/lockers', methods=['GET'])
 def get_lockers():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT idLocker, numeroLocker, piso_edificio_idPiso, estado_locker_idEstadoLocker FROM locker")
+    cursor.execute("SELECT idLocker, numeroLocker, pe.pisoCol , piso_edificio_idPiso ,estado_locker_idEstadoLocker FROM locker l INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso")
     datos = cursor.fetchall()
     
     # Traducir el estado
     translated_data = []
+
     for locker in datos:
-        estado = locker[3]  # estado_locker_idEstadoLocker
+        edificio = locker[3]
+        if edificio == 1:
+            estado_edificio = "Y"
+        elif edificio == 2:
+            estado_edificio = "W"
+        elif edificio == 3:
+            estado_edificio = "Z"
+        else:
+            estado_edificio = "???"
+
+
+    for locker in datos:
+        estado = locker[4]  # estado_locker_idEstadoLocker
         if estado == 1:
             estado_texto = "Disponible"
         elif estado == 2:
@@ -74,6 +136,7 @@ def get_lockers():
             'id': locker[0],
             'numero': locker[1],
             'piso': locker[2],
+            'edificio': estado_edificio,
             'estado': estado_texto
         })
 
