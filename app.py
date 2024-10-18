@@ -86,7 +86,38 @@ def index():
     cursor.close()
     return render_template('index.html', datos=translated_data)
 
-@app.route('/add', methods=['POST'])
+# Nueva ruta para mostrar la reserva activa de un locker
+@app.route('/reserva_activa/<int:locker_id>')
+@app.route('/reserva_activa/<int:locker_id>')
+def reserva_activa(locker_id):
+    cursor = mysql.connection.cursor()
+
+    # Obtener los datos de la reserva activa del locker seleccionado
+    query = """
+        SELECT r.fecha_inicio, r.fecha_fin, a.pNombreAlumno, a.apPaternoAlumno, a.runAlumno
+        FROM reserva_alumno r
+        INNER JOIN alumno a ON r.alumno_runAlumno = a.runAlumno
+        WHERE r.locker_idLocker = %s AND r.estadoReserva_idEstadoReserva = 1
+    """
+    cursor.execute(query, (locker_id,))
+    reserva = cursor.fetchone()  # Asumimos que solo hay una reserva activa por locker
+
+    cursor.close()
+
+    if reserva:
+        reserva_data = {
+            'fecha_inicio': reserva[0],
+            'fecha_fin': reserva[1],
+            'nombre_alumno': reserva[2],
+            'apellido_alumno': reserva[3],
+            'run_alumno': reserva[4]
+        }
+        return render_template('reserva_activa.html', reserva=reserva_data)
+    else:
+        return f"No hay reservas activas para el locker con ID {locker_id}."
+
+
+
 def add_locker():
     numero = request.form['numero']
     piso = request.form['piso']
@@ -203,6 +234,8 @@ def cancel_reservation():
 
 
     return redirect('/')  # Redirige al índice después de cancelar
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
