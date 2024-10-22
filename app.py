@@ -191,6 +191,10 @@ def reserva():
 
 
 def reserve_locker():
+    numLocker = request.form['numeroLocker']
+    pisoLocker = request.form['pisoLocker']
+    edificioLocker = request.form['edifLocker']
+
     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
     rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
     start_date = request.form['startDate']
@@ -239,3 +243,37 @@ def cancel_reservation():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+    def verificarLocker():
+        numLocker = request.form['numeroLocker']
+        pisoLocker = request.form['pisoLocker']
+        edificioLocker = request.form['edifLocker']
+        if 1 <= edificioLocker <= 5:
+            estado_edificio = "Y"
+        elif 6 <= edificioLocker <= 10:
+            estado_edificio = "W"
+        elif 11 <= edificioLocker <= 14:
+            edificioLocker = "Z"
+        else:
+            edificioLocker = ""
+
+        cursor = mysql.connection.cursor() 
+        cursor.execute("SELECT idLocker , estado_locker_idEstadoLocker from locker WHERE numeroLocker = 1 AND piso_edificio_idPiso = 3 AND")
+
+
+
+
+
+        locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
+        rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
+        start_date = request.form['startDate']
+        end_date = request.form['endDate']
+        estado = '1'
+        tipo_reserva = '1'
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
+        mysql.connection.commit()
+        cursor.close()
