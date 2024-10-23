@@ -8,7 +8,7 @@ CORS(app)  # Habilita CORS
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'jDXgT61EhWinGAx0Wy2H'
+app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] = 'lockersbd'  # Asegúrate de que el nombre de la base de datos es correcto
 
 mysql = MySQL(app)
@@ -239,7 +239,30 @@ def cancel_reservation():
 
     return redirect('/')  # Redirige al índice después de cancelar
 
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
+# Ruta para el formulario de login
+@app.route('/formLogin', methods=['POST'])
+def formLogin():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        email = request.form['email']
+        password = request.form['password']
+
+        # Consultar la base de datos para verificar el usuario y la contraseña
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND runAlumno = %s", (email, password))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            return redirect('/')
+        else:
+            mensaje = "Usuario o contraseña incorrectos"
+
+    return render_template('login.html', mensaje=mensaje)
 
 if __name__ == '__main__':
     app.run(debug=True)
