@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de los Lockers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Redirigir a la página de reserva activa
+        function goToReservation(lockerId) {
+            window.location.href = "/reserva_activa/" + lockerId;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Logo de la empresa -->
+            <img src="{{ url_for('static', filename='img/LockersDuoc.png') }}" alt="Logo Lockers Duoc" class="logo-img">
+            <h1>Locker reservado</h1>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Número del Locker</th>
+                    <th>Letra Edificio</th>
+                    <th>Piso del Edificio</th>
+                    <th>Estado del Locker</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for locker in datos %}
+                <tr {% if locker[4] == 'Ocupado' %} onclick="goToReservation({{ locker[0] }})" style="cursor: pointer;" {% endif %} data-toggle="tooltip" data-html="true" title="{{ locker[5] if locker[4] == 'Ocupado' else '' }}">
+                    <td>{{ locker[0] }}</td>
+                    <td>{{ locker[1] }}</td>
+                    <td>{{ locker[2] }}</td>
+                    <td>{{ locker[3] }}</td>
+                    <td class="{{ 'disponible' if locker[4] == 'Disponible' else 'ocupado' if locker[4] == 'Ocupado' else 'con-problema' }}">{{ locker[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+
+
+</body>
+</html>

@@ -264,6 +264,11 @@ def formLogin():
 
     return render_template('login.html', mensaje=mensaje)
 
+@app.route('/usuario-reserva')
+def usuarioReserva():
+    return render_template('usuario-reserva.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
 
