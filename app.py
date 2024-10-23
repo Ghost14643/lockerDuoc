@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_cors import CORS
 from flask_mysqldb import MySQL
+from flask_login import UserMixin, LoginManager, login_user, current_user, login_required
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS
@@ -8,10 +9,77 @@ CORS(app)  # Habilita CORS
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'jDXgT61EhWinGAx0Wy2H'
 app.config['MYSQL_DB'] = 'lockersbd'  # Asegúrate de que el nombre de la base de datos es correcto
+app.config['SECRET_KEY'] = 'secret_key'
 
 mysql = MySQL(app)
+
+"""
+Inicio Login
+"""
+class Usuario(UserMixin):
+    def __init__(self, run, email):
+        self.id = run
+        self.email = email
+
+    def get_run(self):
+        return self.run
+    
+    @property
+    def is_authenticated(self):
+        return True
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = '/login'  # Ruta a la que redirigir si el usuario no está autenticado
+
+
+@login_manager.user_loader
+def load_user(user_rut):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT runAlumno, emailAlumno FROM alumno WHERE runAlumno = %s", (user_rut,))
+    user = cur.fetchone()
+    cur.close()
+
+    if user:
+        user = Usuario(user[0], user[1])
+        return user
+    return None
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+# Ruta para el formulario de login
+@app.route('/formLogin', methods=['GET', 'POST'])
+def formLogin():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        email = request.form['email']
+        password = request.form['password']
+
+        # Consultar la base de datos para verificar el usuario y la contraseña
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT runAlumno, emailAlumno FROM alumno WHERE emailAlumno = %s AND runAlumno = %s", (email, password))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            # Crear un objeto User e iniciar la sesión
+            user = Usuario(user[0], user[1])
+            login_user(user)
+            return redirect('usuario-reserva')
+
+        else:
+            mensaje = "Usuario o contraseña incorrectos"
+
+    return render_template('login.html', mensaje=mensaje)
+
+"""
+Fin Login
+"""
 
 @app.route('/')
 def index():
@@ -239,34 +307,54 @@ def cancel_reservation():
 
     return redirect('/')  # Redirige al índice después de cancelar
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-# Ruta para el formulario de login
-@app.route('/formLogin', methods=['POST'])
-def formLogin():
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        email = request.form['email']
-        password = request.form['password']
-
-        # Consultar la base de datos para verificar el usuario y la contraseña
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND runAlumno = %s", (email, password))
-        user = cur.fetchone()
-        cur.close()
-
-        if user:
-            return redirect('/')
-        else:
-            mensaje = "Usuario o contraseña incorrectos"
-
-    return render_template('login.html', mensaje=mensaje)
-
-@app.route('/usuario-reserva')
+@app.route('/usuario-reserva', methods=['GET'])
+@login_required
 def usuarioReserva():
-    return render_template('usuario-reserva.html')
+    cursor = mysql.connection.cursor()
+
+    # Construir la consulta con filtros
+    query = """
+    SELECT idLocker, numeroLocker, pe.pisoCol, l.piso_edificio_idPiso, estado_locker_idEstadoLocker
+    FROM locker l 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso 
+    WHERE 1=1
+    AND estado_locker_idEstadoLocker=2
+    """
+    params = []
+    
+    cursor.execute(query, params)
+    datos = cursor.fetchall()
+
+    # Traducir el estado
+    translated_data = []
+    for locker in datos:
+        idLocker, numeroLocker, pisoCol, idPiso, estado = locker
+        
+        # Determina el edificio
+        if 1 <= idPiso <= 5:
+            estado_edificio = "Y"
+        elif 6 <= idPiso <= 10:
+            estado_edificio = "W"
+        elif 11 <= idPiso <= 14:
+            estado_edificio = "Z"
+        else:
+            estado_edificio = "Desconocido"
+
+        # Traducir el estado del locker
+        if estado == 1:
+            estado_texto = "Disponible"
+        elif estado == 2:
+            estado_texto = "Ocupado"
+        elif estado == 3:
+            estado_texto = "Con Problema"
+        else:
+            estado_texto = "Desconocido"
+
+        translated_data.append((idLocker, numeroLocker, pisoCol, estado_edificio, estado_texto))
+
+    cursor.close()
+    return render_template('usuario-reserva.html',datos=translated_data)
+
 
 
 if __name__ == '__main__':
