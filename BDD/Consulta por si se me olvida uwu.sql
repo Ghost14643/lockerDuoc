@@ -44,3 +44,12 @@ LEFT JOIN reserva_alumno ra ON l.idLocker = ra.locker_idLocker;
         FROM reserva_alumno r
         INNER JOIN alumno a ON r.alumno_runAlumno = a.runAlumno
         WHERE r.locker_idLocker = 2 AND r.estadoReserva_idEstadoReserva = 1
+        ;
+        
+ SELECT idLocker, numeroLocker, pe.pisoCol, l.piso_edificio_idPiso, ei.letraEdificio , estado_locker_idEstadoLocker
+    FROM locker l 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+    INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
+    WHERE 1=1
+;
+

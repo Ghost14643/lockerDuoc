@@ -294,12 +294,15 @@ CONSTRAINT `fk_alumno_escuela1`
   ON DELETE NO ACTION
   ON UPDATE NO ACTION
     )
-
-
-
 ENGINE = InnoDB;
 
+ALTER TABLE `lockersbd`.`alumno` 
+ADD COLUMN `contrasenAlumno` VARCHAR(45) NOT NULL AFTER `apMaternoAlumno`;
+
 INSERT INTO `lockersBD`.`alumno` VALUES ('21300379', '8', 'hec.lopez@duocuc.cl', 'Héctor', 'López', 'González', 2023, 1, 1, 1, 1);
+UPDATE `lockersbd`.`alumno` SET `contrasenAlumno` = 'aaaaaaaa' WHERE (`runAlumno` = '21300379');
+INSERT INTO `lockersbd`.`alumno` (`runAlumno`, `dvRunAlumno`, `emailAlumno`, `pNombreAlumno`, `apPaternoAlumno`, `apMaternoAlumno`, `contrasenAlumno`, `anioIngresoAlumno`, `jornada_idJornada`, `carrera_idCarrera`, `carrera_tipo_carrera_idTipoCarrera`, `carrera_escuela_idEscuela`) VALUES ('22222222', '2', 'test@test.cl', 'test', 'test', 'test', 'test', 2022, '2', '2', '2', '2');
+
 
 -- -----------------------------------------------------
 -- Table `lockersBD`.`administrador`
@@ -323,7 +326,7 @@ ENGINE = InnoDB;
 
 
 
-
+INSERT INTO `lockersbd`.`administrador` (`runAdministrador`, `dvRunAdministrador`, `pNombreAdministrador`, `apPaternoAdmin`, `code_offline_idCodeOffline`) VALUES ('11111111', '1', 'admin', 'admin', '1');
 INSERT INTO `lockersBD`.`administrador` VALUES ('22032622', '8', 'het0c', 'admin', 1);
 
 -- -----------------------------------------------------

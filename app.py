@@ -1,32 +1,73 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import render_template, request, redirect, jsonify, session
 from flask_cors import CORS
-from flask_mysqldb import MySQL
+from dataBaseConnection import get_db  #conexión a la base de datos
 
-app = Flask(__name__)
-CORS(app)  # Habilita CORS
+app, mysql = get_db()
+CORS(app)  # Habilitar CORS
+app.secret_key = 'claveMaestra'
 
-# Configuración de la base de datos
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
-app.config['MYSQL_DB'] = 'lockersbd'  # Asegúrate de que el nombre de la base de datos es correcto
+@app.route('/login')
+def login():
+    return render_template('login.html')
 
-mysql = MySQL(app)
+# Ruta para el formulario de login
+@app.route('/formLogin', methods=['POST'])
+def formLogin():
+    if request.method == 'POST':
+        # Obtener los datos del formulario
+        email = request.form['email']
+        password = request.form['password']
+
+        # Consultar la base de datos para verificar el usuario y la contraseña
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND contrasenAlumno = %s", (email, password))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            # Guardar los datos del usuario en la sesión
+            session['logged_in'] = True
+            session['user_id'] = user[0]  # Guarda el ID del usuario (ajusta según tu base de datos)
+            session['email'] = email
+            return redirect('/')
+        else:
+            mensaje = "Usuario o contraseña incorrectos"
+            return render_template('login.html', mensaje=mensaje)
+        
+
+
+# Ruta para cerrar sesión
+@app.route('/logout')
+def logout():
+    # Elimina los datos de la sesión para cerrar la sesión del usuario
+    session.pop('logged_in', None)
+    session.pop('user_id', None)
+    session.pop('email', None)
+    return redirect('/login')
+
+
+@app.route('/usuario-reserva')
+def usuarioReserva():
+    return render_template('usuario-reserva.html')
 
 @app.route('/')
 def index():
+    
+    if not session.get('logged_in'):
+        return redirect('/login')
+    print(session['logged_in'],session['user_id'], session['email'] )
     # Recibir filtros desde el formulario
     estado = request.args.get('estado')
     piso = request.args.get('piso')
     edificio = request.args.get('edificio')
-
     cursor = mysql.connection.cursor()
 
     # Construir la consulta con filtros
     query = """
-    SELECT idLocker, numeroLocker, pe.pisoCol, l.piso_edificio_idPiso, estado_locker_idEstadoLocker
+    SELECT idLocker, numeroLocker, pe.pisoCol, ei.letraEdificio , estado_locker_idEstadoLocker
     FROM locker l 
-    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+    INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
     WHERE 1=1
     """
     params = []
@@ -45,13 +86,14 @@ def index():
         params.append(piso)
 
     if edificio:
-        query += " AND piso_edificio_idPiso "
+        query += " AND letraEdificio = %s"
         if edificio == "Y":
-            query += "<= 5"
+            params.append(4)
         elif edificio == "W":
-            query += " BETWEEN 6 AND 10"
+            params.append(5)
         elif edificio == "Z":
-            query += " BETWEEN 11 AND 14"
+            params.append(3)
+
 
     cursor.execute(query, params)
     datos = cursor.fetchall()
@@ -59,17 +101,9 @@ def index():
     # Traducir el estado
     translated_data = []
     for locker in datos:
-        idLocker, numeroLocker, pisoCol, idPiso, estado = locker
+        idLocker, numeroLocker, pisoCol, letraEdificio , estado = locker
         
-        # Determina el edificio
-        if 1 <= idPiso <= 5:
-            estado_edificio = "Y"
-        elif 6 <= idPiso <= 10:
-            estado_edificio = "W"
-        elif 11 <= idPiso <= 14:
-            estado_edificio = "Z"
-        else:
-            estado_edificio = "Desconocido"
+
 
         # Traducir el estado del locker
         if estado == 1:
@@ -81,13 +115,12 @@ def index():
         else:
             estado_texto = "Desconocido"
 
-        translated_data.append((idLocker, numeroLocker, pisoCol, estado_edificio, estado_texto))
+        translated_data.append((idLocker, numeroLocker, pisoCol, letraEdificio, estado_texto))
 
     cursor.close()
     return render_template('index.html', datos=translated_data)
 
 # Nueva ruta para mostrar la reserva activa de un locker
-@app.route('/reserva_activa/<int:locker_id>')
 @app.route('/reserva_activa/<int:locker_id>')
 def reserva_activa(locker_id):
     cursor = mysql.connection.cursor()
@@ -182,27 +215,18 @@ def reserva():
 
 # Ruta para reservar un locker
 @app.route('/reserve', methods=['POST'])
-# def reserve_locker():
-#     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
-#     cursor = mysql.connection.cursor()
-#     cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 2 WHERE idLocker = %s", (locker_id,))  # 2 para 'Ocupado'
-#     mysql.connection.commit()
-#     cursor.close()
-
-
 def reserve_locker():
-    numLocker = request.form['numeroLocker']
-    pisoLocker = request.form['pisoLocker']
-    edificioLocker = request.form['edifLocker']
 
     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
-    rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
+    edificio_Locker = request.form['edificio']
+    rut_estudiante = session['user_id'] #utiliza el run de usuario iniciado
     start_date = request.form['startDate']
     end_date = request.form['endDate']
     estado = '1'
     tipo_reserva = '1'
 
     cursor = mysql.connection.cursor()
+    cursor.execute("SELECT idLocker FROM locker WHERE 1=1 AND numeroLocker = %s AND piso_edificio_id_Piso = %s", (locker_id,edificio_Locker) )
     cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
     mysql.connection.commit()
     cursor.close()
@@ -218,13 +242,6 @@ def cancelacion():
 
 # Ruta para cancelar una reserva
 @app.route('/cancel', methods=['POST'])
-# def cancel_reservation():
-#     locker_id = request.form['idLocker']  # Obtener el ID del locker desde el formulario
-#     cursor = mysql.connection.cursor()
-#     cursor.execute("UPDATE locker SET estado_locker_idEstadoLocker = 1 WHERE idLocker = %s", (locker_id,))  # 1 para 'Disponible'
-#     mysql.connection.commit()
-#     cursor.close()
-    
 def cancel_reservation():
     idReserva = request.form['idReserva']
     rutAdmin = request.form['rutAdmin']
@@ -233,40 +250,8 @@ def cancel_reservation():
     cursor.execute("INSERT INTO `lockersbd`.`cancelacion_reserva` (`administrador_runAdministrador`, `reserva_alumno_idReservaAlumno`, `observacion`) VALUES (%s , %s , %s)" , (rutAdmin, idReserva ,  observacion)) 
     mysql.connection.commit()
     cursor.close()
-
-
-
-
     return redirect('/')  # Redirige al índice después de cancelar
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-# Ruta para el formulario de login
-@app.route('/formLogin', methods=['POST'])
-def formLogin():
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        email = request.form['email']
-        password = request.form['password']
-
-        # Consultar la base de datos para verificar el usuario y la contraseña
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND runAlumno = %s", (email, password))
-        user = cur.fetchone()
-        cur.close()
-
-        if user:
-            return redirect('/')
-        else:
-            mensaje = "Usuario o contraseña incorrectos"
-
-    return render_template('login.html', mensaje=mensaje)
-
-@app.route('/usuario-reserva')
-def usuarioReserva():
-    return render_template('usuario-reserva.html')
 
 
 if __name__ == '__main__':
