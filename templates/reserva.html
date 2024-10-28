@@ -17,8 +17,8 @@
             
             <h2>Reservar Locker</h2>
             <form action="/reserve" method="POST">
-                <label for="rutEstudiante">Rut del estudiante:</label>
-                <input type="number" id="rutEstudiante" name="rutEstudiante" required>
+                <!-- <label for="rutEstudiante">Rut del estudiante:</label>
+                <input type="number" id="rutEstudiante" name="rutEstudiante" required> -->
                 <br><br>
             
                 <label for="numeroLocker">Número de Locker:</label>
@@ -30,9 +30,9 @@
                 <div class="form-group">
                     <label for="edificio">Edificio:</label>
                     <select id="edificio" name="edificio" class="form-control">
-                        <option value="">Y</option>
-                        <option value="Disponible">W</option>
-                        <option value="Ocupado">Z</option>
+                        <option value="1">Y</option>
+                        <option value="2">W</option>
+                        <option value="3">Z</option>
                     </select>
                 </div>
 
@@ -53,6 +53,19 @@
             
 
             </form>
+
+            <!-- Mostrar mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
         </div>
     </div>

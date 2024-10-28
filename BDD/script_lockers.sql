@@ -103,7 +103,7 @@ INSERT INTO `lockersBD`.`carrera` VALUES (DEFAULT, 'Técnico en Mecánica Automo
 INSERT INTO `lockersBD`.`carrera` VALUES (DEFAULT, 'Técnico en Operación y Supervisión de Procesos Mineros', '1', '7');
 INSERT INTO `lockersBD`.`carrera` VALUES (DEFAULT, 'Técnico en Prevención de Riesgos Laborales', '1', '3');
 INSERT INTO `lockersBD`.`carrera` VALUES (DEFAULT, 'Técnico en Turismo y Hospitalidad', '1', '9');
-INSERT INTO `lockersBD`.`carrera` VALUES (DEFAULT, 'Ingenieria en Informatica', '2', '6');
+INSERT INTO `lockersBD`.`carrera` VALUES ('50', 'Ingenieria en Informatica', '2', '6');
 
 -- -----------------------------------------------------
 -- Table `lockersBD`.`code_offline`
@@ -183,13 +183,19 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`piso_edificio` (
   `idPiso` INT NOT NULL AUTO_INCREMENT,
   `pisoCol` INT NOT NULL,
   `edificio_instituto_idEdificioInstituto` INT NOT NULL,
+  `pisoEscuela_idEscuela` INT NULL,
   PRIMARY KEY (`idPiso`),
   INDEX `fk_piso_edificio_edificio_instituto1_idx` (`edificio_instituto_idEdificioInstituto` ASC) VISIBLE,
+  INDEX `fk_piso_edificio_escuela2_idx` (`pisoEscuela_idEscuela` ASC) VISIBLE,
   CONSTRAINT `fk_piso_edificio_edificio_instituto1`
     FOREIGN KEY (`edificio_instituto_idEdificioInstituto`)
-    REFERENCES `lockersBD`.`edificio_instituto` (`idEdificioInstituto`)
+    REFERENCES `lockersBD`.`edificio_instituto` (`idEdificioInstituto`),
+	CONSTRAINT `fk_piso_edificio_escuela2`
+    FOREIGN KEY (`pisoEscuela_idEscuela`)
+    REFERENCES `lockersbd`.`escuela` (`idEscuela`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
@@ -263,16 +269,13 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`alumno` (
   `pNombreAlumno` VARCHAR(45) NOT NULL,
   `apPaternoAlumno` VARCHAR(45) NOT NULL,
   `apMaternoAlumno` VARCHAR(45) NOT NULL,
+  `contrasenAlumno` varchar(45) NOT NULL,
   `anioIngresoAlumno` YEAR NOT NULL,
   `jornada_idJornada` INT NOT NULL,
   `carrera_idCarrera` INT NOT NULL,
-  `carrera_tipo_carrera_idTipoCarrera` INT NOT NULL,
-  `carrera_escuela_idEscuela` INT NOT NULL,
   PRIMARY KEY (`runAlumno`),
   INDEX `fk_alumno_jornada1_idx` (`jornada_idJornada` ASC) VISIBLE,
-  INDEX `fk_alumno_carrera1_idx` (`carrera_idCarrera` ASC, `carrera_tipo_carrera_idTipoCarrera` ASC, `carrera_escuela_idEscuela` ASC) VISIBLE,
-  INDEX `fk_alumno_tipo_carrera1_idx` (`carrera_tipo_carrera_idTipoCarrera` ASC) VISIBLE,
-  INDEX `fk_alumno_escuela1_idx` (`carrera_escuela_idEscuela` ASC) VISIBLE,
+  INDEX `fk_alumno_carrera1_idx` (`carrera_idCarrera` ASC) VISIBLE,
   CONSTRAINT `fk_alumno_jornada1`
     FOREIGN KEY (`jornada_idJornada`)
     REFERENCES `lockersBD`.`jornada` (`idJornada`)
@@ -282,26 +285,15 @@ CREATE TABLE IF NOT EXISTS `lockersBD`.`alumno` (
     FOREIGN KEY (`carrera_idCarrera`)
     REFERENCES `lockersBD`.`carrera` (`idCarrera`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
- CONSTRAINT `fk_alumno_tipo_carrera1`
-  FOREIGN KEY (`carrera_tipo_carrera_idTipoCarrera`)
-  REFERENCES `lockersbd`.`tipo_carrera` (`idTipoCarrera`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
-CONSTRAINT `fk_alumno_escuela1`
-  FOREIGN KEY (`carrera_escuela_idEscuela`)
-  REFERENCES `lockersbd`.`escuela` (`idEscuela`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION
+    ON UPDATE NO ACTION
     )
 ENGINE = InnoDB;
 
-ALTER TABLE `lockersbd`.`alumno` 
-ADD COLUMN `contrasenAlumno` VARCHAR(45) NOT NULL AFTER `apMaternoAlumno`;
 
-INSERT INTO `lockersBD`.`alumno` VALUES ('21300379', '8', 'hec.lopez@duocuc.cl', 'Héctor', 'López', 'González', 2023, 1, 1, 1, 1);
-UPDATE `lockersbd`.`alumno` SET `contrasenAlumno` = 'aaaaaaaa' WHERE (`runAlumno` = '21300379');
-INSERT INTO `lockersbd`.`alumno` (`runAlumno`, `dvRunAlumno`, `emailAlumno`, `pNombreAlumno`, `apPaternoAlumno`, `apMaternoAlumno`, `contrasenAlumno`, `anioIngresoAlumno`, `jornada_idJornada`, `carrera_idCarrera`, `carrera_tipo_carrera_idTipoCarrera`, `carrera_escuela_idEscuela`) VALUES ('22222222', '2', 'test@test.cl', 'test', 'test', 'test', 'test', 2022, '2', '2', '2', '2');
+
+INSERT INTO `lockersBD`.`alumno` (`runAlumno`, `dvRunAlumno`, `emailAlumno`, `pNombreAlumno`, `apPaternoAlumno`, `apMaternoAlumno`, `contrasenAlumno`, `anioIngresoAlumno`, `jornada_idJornada`, `carrera_idCarrera`)  VALUES ('21300379', '8', 'hec.lopez@duocuc.cl', 'Héctor', 'López', 'González','aaaaaaaa', 2023, 1, 50);
+
+INSERT INTO `lockersbd`.`alumno` (`runAlumno`, `dvRunAlumno`, `emailAlumno`, `pNombreAlumno`, `apPaternoAlumno`, `apMaternoAlumno`, `contrasenAlumno`, `anioIngresoAlumno`, `jornada_idJornada`, `carrera_idCarrera`) VALUES ('22222222', '2', 'test@test.cl', 'test', 'test', 'test', 'test', 2022, '2', '2');
 
 
 -- -----------------------------------------------------

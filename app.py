@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, jsonify, session
+from flask import flash, render_template, request, redirect, jsonify, session
 from flask_cors import CORS
 from dataBaseConnection import get_db  #conexión a la base de datos
 
@@ -212,26 +212,76 @@ def get_lockers():
 def reserva():
     return render_template('reserva.html')
 
+def escuela_estudiante(rutEstudiante, id_locker):
+    cursor = mysql.connection.cursor()
+
+    # Corregir el parámetro para que sea una tupla agregando una coma
+    cursor.execute("SELECT escuela_idEscuela FROM alumno a INNER JOIN carrera c ON a.carrera_idCarrera = c.idCarrera WHERE runAlumno = %s",(rutEstudiante,))
+    idEscuelaAlumno = cursor.fetchone()
+    cursor.execute("SELECT pisoEscuela_idEscuela FROM piso_edificio pe INNER JOIN locker l  ON l.piso_edificio_idPiso = pe.idPiso WHERE idLocker =  %s", (id_locker,))
+    idEscuelaPiso = cursor.fetchone()
+    cursor.close()
+
+    if idEscuelaAlumno and idEscuelaPiso:
+        return True if idEscuelaAlumno[0] == idEscuelaPiso[0] or idEscuelaPiso[0] is None else False
+    return False
+
 
 # Ruta para reservar un locker
 @app.route('/reserve', methods=['POST'])
 def reserve_locker():
+    try:
+        numLocker = request.form['numeroLocker']
+        pisoLocker = request.form['piso']
+        edificio_Locker = request.form['edificio']
+        rut_estudiante = session['user_id']  # utiliza el run de usuario iniciado
+        start_date = request.form['startDate']
+        end_date = request.form['endDate']
+        estado = '1'
+        tipo_reserva = '1'
 
-    locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
-    edificio_Locker = request.form['edificio']
-    rut_estudiante = session['user_id'] #utiliza el run de usuario iniciado
-    start_date = request.form['startDate']
-    end_date = request.form['endDate']
-    estado = '1'
-    tipo_reserva = '1'
+        cursor = mysql.connection.cursor()
 
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT idLocker FROM locker WHERE 1=1 AND numeroLocker = %s AND piso_edificio_id_Piso = %s", (locker_id,edificio_Locker) )
-    cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
-    mysql.connection.commit()
-    cursor.close()
+        # Verificar si el locker existe y está disponible
+        cursor.execute(
+            """SELECT idLocker , estado_locker_idEstadoLocker
+            FROM locker l 
+            INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+            WHERE l.numeroLocker = %s AND pisoCol = %s AND pe.edificio_instituto_idEdificioInstituto = %s""", (numLocker, pisoLocker, edificio_Locker)
+        )
+        
+        locker = cursor.fetchone()
+        if locker:
+            locker_id = locker[0]  # Extraer el idLocker de la primera tupla
 
-    return redirect('/')  # Redirige al índice después de reservar
+            # Llamada a escuela_estudiante con ambos parámetros
+            if escuela_estudiante(rut_estudiante, locker_id):
+                if locker[1] == 1:  # Verifica si el locker está disponible
+                    cursor.execute(
+                        """INSERT INTO reserva_alumno 
+                        (fecha_inicio, fecha_fin, locker_idLocker, alumno_runAlumno, estadoReserva_idEstadoReserva, reserva_idReserva) 
+                        VALUES (%s, %s, %s, %s, %s, %s)""", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva)
+                    )
+                    mysql.connection.commit()
+                    return redirect('/')  # Redirige al índice después de reservar
+                elif locker[1] == 2:
+                    flash("El locker solicitado no está disponible.", "error")
+                else:
+                    flash("El locker solicitado no existe.", "error")
+            else:
+                flash("El locker seleccionado pertenece a otra escuela, escoja otro.", "error")
+        else:
+            flash("El locker solicitado no existe.", "error")
+
+        cursor.close()
+        return redirect('/reserva')
+
+        
+    except Exception as e:
+        # Manejo de errores de base de datos u otros problemas
+        mysql.connection.rollback()
+        flash(f"Error al reservar el locker: {str(e)}", "error")
+    return redirect('/reserva')
 
 # Ruta para mostrar la página de cancelación
 @app.route('/cancelacion')
@@ -259,34 +309,34 @@ if __name__ == '__main__':
 
 
 
-def verificarLocker():
-    numLocker = request.form['numeroLocker']
-    pisoLocker = request.form['pisoLocker']
-    edificioLocker = request.form['edifLocker']
-    if 1 <= edificioLocker <= 5:
-        estado_edificio = "Y"
-    elif 6 <= edificioLocker <= 10:
-        estado_edificio = "W"
-    elif 11 <= edificioLocker <= 14:
-        edificioLocker = "Z"
-    else:
-        edificioLocker = ""
+# def verificarLocker():
+#     numLocker = request.form['numeroLocker']
+#     pisoLocker = request.form['pisoLocker']
+#     edificioLocker = request.form['edifLocker']
+#     if 1 <= edificioLocker <= 5:
+#         estado_edificio = "Y"
+#     elif 6 <= edificioLocker <= 10:
+#         estado_edificio = "W"
+#     elif 11 <= edificioLocker <= 14:
+#         edificioLocker = "Z"
+#     else:
+#         edificioLocker = ""
 
-    cursor = mysql.connection.cursor() 
-    cursor.execute("SELECT idLocker , estado_locker_idEstadoLocker from locker WHERE numeroLocker = 1 AND piso_edificio_idPiso = 3 AND")
-
-
+#     cursor = mysql.connection.cursor() 
+#     cursor.execute("SELECT idLocker , estado_locker_idEstadoLocker from locker WHERE numeroLocker = 1 AND piso_edificio_idPiso = 3 AND")
 
 
 
-    locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
-    rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
-    start_date = request.form['startDate']
-    end_date = request.form['endDate']
-    estado = '1'
-    tipo_reserva = '1'
 
-    cursor = mysql.connection.cursor()
-    cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
-    mysql.connection.commit()
-    cursor.close()
+
+#     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
+#     rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
+#     start_date = request.form['startDate']
+#     end_date = request.form['endDate']
+#     estado = '1'
+#     tipo_reserva = '1'
+
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
+#     mysql.connection.commit()
+#     cursor.close()

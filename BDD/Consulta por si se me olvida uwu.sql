@@ -53,3 +53,17 @@ LEFT JOIN reserva_alumno ra ON l.idLocker = ra.locker_idLocker;
     WHERE 1=1
 ;
 
+SELECT idLocker , estado_locker_idEstadoLocker, pe.pisoEscuela_idEscuela
+                        FROM locker l 
+                        INNER JOIN piso_edificio pe on l.piso_edificio_idPiso = pe.idPiso
+                        WHERE 1=1 AND 
+                        l.numeroLocker  AND piso_edificio_idPiso  AND pe.edificio_instituto_idEdificioInstituto 
+                        ;
+
+
+call p_crearLocker()
+;
+
+SELECT piso_edificio_idPiso FROM locker WHERE idLocker ;
+
+SELECT pisoEscuela_idEscuela FROM piso_edificio pe INNER JOIN locker l  ON l.piso_edificio_idPiso = pe.idPiso WHERE idLocker %s
