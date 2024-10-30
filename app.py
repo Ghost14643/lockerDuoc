@@ -19,10 +19,10 @@ def formLogin():
         password = request.form['password']
 
         # Consultar la base de datos para verificar el usuario y la contraseña
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND contrasenAlumno = %s", (email, password))
-        user = cur.fetchone()
-        cur.close()
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM alumno WHERE emailAlumno = %s AND contrasenAlumno = %s", (email, password))
+        user = cursor.fetchone()
+        cursor.close()
 
         if user:
             # Guardar los datos del usuario en la sesión
@@ -49,6 +49,30 @@ def logout():
 @app.route('/usuario-reserva')
 def usuarioReserva():
     return render_template('usuario-reserva.html')
+
+# #metodos para filtrar  en busqueda
+# def filtroEstado(requestEstado):
+#     cursor = mysql.connection.cursor()
+#     query = """SELECT estado_locker_idEstadoLocker FROM locker WHERE idLocker = %s , """
+#     cursor.execute(query, params)
+#     datos = cursor.fetchall()
+
+
+#         # if estado:
+#         # query += " AND estado_locker_idEstadoLocker = %s"
+#         # if estado == "Disponible":
+#         #     params.append(1)
+#         # elif estado == "Ocupado":
+#         #     params.append(2)
+#         # elif estado == "Con Problema":
+#         #     params.append(3)
+    
+#     return outEstado
+
+# def filtroPiso():
+#     return
+# def filtroEdificio():
+#     return
 
 @app.route('/')
 def index():
@@ -87,12 +111,7 @@ def index():
 
     if edificio:
         query += " AND letraEdificio = %s"
-        if edificio == "Y":
-            params.append(4)
-        elif edificio == "W":
-            params.append(5)
-        elif edificio == "Z":
-            params.append(3)
+        params.append(edificio)
 
 
     cursor.execute(query, params)
@@ -215,7 +234,6 @@ def reserva():
 def escuela_estudiante(rutEstudiante, id_locker):
     cursor = mysql.connection.cursor()
 
-    # Corregir el parámetro para que sea una tupla agregando una coma
     cursor.execute("SELECT escuela_idEscuela FROM alumno a INNER JOIN carrera c ON a.carrera_idCarrera = c.idCarrera WHERE runAlumno = %s",(rutEstudiante,))
     idEscuelaAlumno = cursor.fetchone()
     cursor.execute("SELECT pisoEscuela_idEscuela FROM piso_edificio pe INNER JOIN locker l  ON l.piso_edificio_idPiso = pe.idPiso WHERE idLocker =  %s", (id_locker,))
@@ -224,6 +242,17 @@ def escuela_estudiante(rutEstudiante, id_locker):
 
     if idEscuelaAlumno and idEscuelaPiso:
         return True if idEscuelaAlumno[0] == idEscuelaPiso[0] or idEscuelaPiso[0] is None else False
+    return False
+
+def dispoCalendar(lockerId,start,end): #comprueba la disponibilidad por calendario
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT fecha_inicio , fecha_fin FROM reserva_alumno WHERE locker_idLocker= %s",(lockerId,))
+    fechas = cursor.fetchone()
+    bddStart = fechas[0].strftime("%Y-%m-%d") #Cambia el formato datetime a str para comparacion.
+    bddEnd = fechas[1].strftime("%Y-%m-%d")
+    cursor.close()
+    if fechas:
+        return True if bddStart <= start or bddEnd >= end or fechas is None else False #si esta dentro del rango, retornara True para entender que esta ocupado
     return False
 
 
@@ -239,9 +268,8 @@ def reserve_locker():
         end_date = request.form['endDate']
         estado = '1'
         tipo_reserva = '1'
-
         cursor = mysql.connection.cursor()
-
+        
         # Verificar si el locker existe y está disponible
         cursor.execute(
             """SELECT idLocker , estado_locker_idEstadoLocker
@@ -251,9 +279,9 @@ def reserve_locker():
         )
         
         locker = cursor.fetchone()
-        if locker:
+        if locker:          
             locker_id = locker[0]  # Extraer el idLocker de la primera tupla
-
+            print(dispoCalendar(locker_id,start_date,end_date))
             # Llamada a escuela_estudiante con ambos parámetros
             if escuela_estudiante(rut_estudiante, locker_id):
                 if locker[1] == 1:  # Verifica si el locker está disponible
@@ -307,36 +335,3 @@ def cancel_reservation():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-
-# def verificarLocker():
-#     numLocker = request.form['numeroLocker']
-#     pisoLocker = request.form['pisoLocker']
-#     edificioLocker = request.form['edifLocker']
-#     if 1 <= edificioLocker <= 5:
-#         estado_edificio = "Y"
-#     elif 6 <= edificioLocker <= 10:
-#         estado_edificio = "W"
-#     elif 11 <= edificioLocker <= 14:
-#         edificioLocker = "Z"
-#     else:
-#         edificioLocker = ""
-
-#     cursor = mysql.connection.cursor() 
-#     cursor.execute("SELECT idLocker , estado_locker_idEstadoLocker from locker WHERE numeroLocker = 1 AND piso_edificio_idPiso = 3 AND")
-
-
-
-
-
-#     locker_id = request.form['numeroLocker']  # Obtener el ID del locker desde el formulario
-#     rut_estudiante = request.form['rutEstudiante'] # Obtiene el rut del estudiante desde el formulario
-#     start_date = request.form['startDate']
-#     end_date = request.form['endDate']
-#     estado = '1'
-#     tipo_reserva = '1'
-
-#     cursor = mysql.connection.cursor()
-#     cursor.execute("INSERT INTO `lockersbd`.`reserva_alumno` (`fecha_inicio`, `fecha_fin`, `locker_idLocker`, `alumno_runAlumno`, `estadoReserva_idEstadoReserva`, `reserva_idReserva`) VALUES (%s, %s, %s, %s, %s, %s)", (start_date, end_date, locker_id, rut_estudiante, estado, tipo_reserva))
-#     mysql.connection.commit()
-#     cursor.close()
