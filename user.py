@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, session
 from flask_cors import CORS
-from dataBaseConnection import get_db  #conexión a la base de datos
+from python.dataBaseConnection import get_db  #conexión a la base de datos
 
 app, mysql = get_db()
 CORS(app)  # Habilitar CORS
