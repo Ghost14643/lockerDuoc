@@ -6,6 +6,10 @@ app, mysql = get_db()
 CORS(app)  # Habilitar CORS
 app.secret_key = 'claveMaestra'
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
+
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -50,29 +54,33 @@ def logout():
 def usuarioReserva():
     return render_template('usuario-reserva.html')
 
-# #metodos para filtrar  en busqueda
-# def filtroEstado(requestEstado):
-#     cursor = mysql.connection.cursor()
-#     query = """SELECT estado_locker_idEstadoLocker FROM locker WHERE idLocker = %s , """
-#     cursor.execute(query, params)
-#     datos = cursor.fetchall()
+#metodos para filtrar  en busqueda
+def filtroEstado(idLocker):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT nombreEstadoLocker FROM locker l INNER JOIN estado_locker el ON l.estado_locker_idEstadoLocker = el.idEstadoLocker WHERE idLocker = %s  ",(idLocker,))
+    estadoLocker = cursor.fetchall()
+    cursor.close()
+    return estadoLocker[0][0] if estadoLocker else page_not_found()
 
 
-#         # if estado:
-#         # query += " AND estado_locker_idEstadoLocker = %s"
-#         # if estado == "Disponible":
-#         #     params.append(1)
-#         # elif estado == "Ocupado":
-#         #     params.append(2)
-#         # elif estado == "Con Problema":
-#         #     params.append(3)
-    
-#     return outEstado
+def filtroPiso(idLocker):
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT pe.pisoCol FROM locker l
+                   INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+                   WHERE idLocker = %s  """,(idLocker,))
+    pisoLocker = cursor.fetchall()
+    cursor.close()
+    return pisoLocker[0][0] if pisoLocker else page_not_found()
 
-# def filtroPiso():
-#     return
-# def filtroEdificio():
-#     return
+def filtroEdificio(idLocker):
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT ei.letraEdificio FROM locker l
+                INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+                INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
+                WHERE idLocker = %s """,(idLocker,))
+    edificioLocker = cursor.fetchall()
+    cursor.close()
+    return edificioLocker[0][0] if edificioLocker else page_not_found()
 
 @app.route('/')
 def index():
@@ -81,7 +89,7 @@ def index():
         return redirect('/login')
     print(session['logged_in'],session['user_id'], session['email'] )
     # Recibir filtros desde el formulario
-    estado = request.args.get('estado')
+    estadoRequest = request.args.get('estado')
     piso = request.args.get('piso')
     edificio = request.args.get('edificio')
     cursor = mysql.connection.cursor()
@@ -96,23 +104,8 @@ def index():
     """
     params = []
 
-    if estado:
-        query += " AND estado_locker_idEstadoLocker = %s"
-        if estado == "Disponible":
-            params.append(1)
-        elif estado == "Ocupado":
-            params.append(2)
-        elif estado == "Con Problema":
-            params.append(3)
+
     
-    if piso:
-        query += " AND pe.pisoCol = %s"
-        params.append(piso)
-
-    if edificio:
-        query += " AND letraEdificio = %s"
-        params.append(edificio)
-
 
     cursor.execute(query, params)
     datos = cursor.fetchall()
@@ -121,7 +114,18 @@ def index():
     translated_data = []
     for locker in datos:
         idLocker, numeroLocker, pisoCol, letraEdificio , estado = locker
-        
+
+
+        # aplicando los filtroos :D
+        if estadoRequest and filtroEstado(idLocker) != estadoRequest:
+            continue 
+
+        if piso and str(filtroPiso(idLocker)) != piso:
+            continue 
+
+        if edificio and filtroEdificio(idLocker) != edificio:
+            continue 
+
 
 
         # Traducir el estado del locker
@@ -138,6 +142,9 @@ def index():
 
     cursor.close()
     return render_template('index.html', datos=translated_data)
+
+
+
 
 # Nueva ruta para mostrar la reserva activa de un locker
 @app.route('/reserva_activa/<int:locker_id>')

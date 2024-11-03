@@ -66,4 +66,12 @@ call p_crearLocker()
 
 SELECT piso_edificio_idPiso FROM locker WHERE idLocker ;
 
-SELECT pisoEscuela_idEscuela FROM piso_edificio pe INNER JOIN locker l  ON l.piso_edificio_idPiso = pe.idPiso WHERE idLocker %s
+SELECT pisoEscuela_idEscuela FROM piso_edificio pe INNER JOIN locker l  ON l.piso_edificio_idPiso = pe.idPiso WHERE idLocker %s;
+
+
+select fecha_inicio <= '24-10-27' , fecha_fin >= '2024-11-05' FROM reserva_alumno WHERE locker_idLocker = 1
+
+;
+
+
+SELECT estado_locker_idEstadoLocker FROM locker WHERE idLocker = 1;
