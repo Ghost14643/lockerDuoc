@@ -1,11 +1,13 @@
-from flask import flash, render_template, request, redirect, session
+from flask import Flask, flash, render_template, request, redirect, session
 from flask_cors import CORS
-from dataBaseConnection import get_db  #conexión a la base de datos
+from python.dataBaseConnection import get_db  #conexión a la base de datos
 import python.independ as independ
 import python.rutasForm as rutasForm #importa blueprints de rutas con mayor complejidad
  #aqui solo se ven rutas vinculadas al templates
 
 app, mysql = get_db()
+
+
 CORS(app)  # Habilitar CORS
 app.secret_key = 'claveMaestra'
 
@@ -28,12 +30,18 @@ def usuarioReserva():
     return render_template('usuario-reserva.html')
 
 #metodos para filtrar  en busqueda
+import os
+
 @app.route('/')
 def index():
-    
     if not session.get('logged_in'):
         return redirect('/login')
-    print(session['logged_in'],session['user_id'], session['email'] )
+    print(session['logged_in'], session['user_id'], session['email'])
+
+    # Verificar la estructura de la carpeta 'templates'
+    print("Archivos en la carpeta 'templates':", os.listdir('templates'))
+    
+    # El resto de tu código sigue igual...
     # Recibir filtros desde el formulario
     estadoRequest = request.args.get('estado')
     piso = request.args.get('piso')
@@ -49,9 +57,6 @@ def index():
     WHERE 1=1
     """
     params = []
-
-
-    
 
     cursor.execute(query, params)
     datos = cursor.fetchall()
@@ -89,6 +94,7 @@ def index():
     return render_template('index.html', datos=translated_data)
 
 # Nueva ruta para mostrar la reserva activa de un locker
+
 @app.route('/reserva_activa/<int:locker_id>')
 def reserva_activa(locker_id):
     cursor = mysql.connection.cursor()

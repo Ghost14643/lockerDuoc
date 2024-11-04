@@ -1,5 +1,5 @@
 from flask import current_app, request,redirect
-from dataBaseConnection import get_db
+from python.dataBaseConnection import get_db
 app, mysql = get_db()
 
 #filtros de busqueda

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session, redirect, jsonify, flash
-from dataBaseConnection import get_db
+from python.dataBaseConnection import get_db
 import python.independ as independ
 #ESTE ES UN MODULO PARA GUARDAR RUTAS SIN TEMPLATE REGISTRADO
 app, mysql = get_db()
