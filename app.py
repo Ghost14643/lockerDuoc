@@ -45,9 +45,11 @@ def usuarioReserva():
 
 @app.route('/')
 def index():
-    if not session.get('logged_in'):
-        return redirect('/login')
-    print(session['logged_in'], session['user_id'], session['email'])
+    # Verificamos si el usuario está logueado
+    if session.get('logged_in'):
+        return redirect('/usuario-reserva')  # O cualquier otra página que desees mostrar
+    return render_template('home.html')  # Muestra home.html si no está logueado
+
 
     # Verificar la estructura de la carpeta 'templates'
     
