@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Nuevo Edificio</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/LockersDuoc.png') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+</head>
+<body>
+    <div class="form-container">
+        <h2>Crear Nuevo Edificio</h2>
+        <form action="/creaEdificio" method="POST">
+            <div class="form-group">
+                <label for="nombre">Nombre del Edificio:</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="numero_pisos">Número de Pisos:</label>
+                <input type="number" id="numero_pisos" name="numero_pisos" required>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Crear Edificio">
+
+            </div>
+        </form>
+    </div>
+    <button onclick="mostrarAviso()">Mostrar Aviso</button>
+</body>
+</html>

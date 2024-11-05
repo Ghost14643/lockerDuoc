@@ -15,6 +15,13 @@ app.secret_key = 'claveMaestra'
 def page_not_found(e):
     return render_template("404.html"), 404
 
+
+
+@app.route('/crear_edificio')
+def crearEdificio():
+    return render_template('crear_edificio.html')
+
+
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -25,12 +32,16 @@ app.register_blueprint(rutasForm.formLogin_bp)
 # Ruta para cerrar sesión
 app.register_blueprint(rutasForm.logout_bp)
 
+# Ruta para crear el edificio
+app.register_blueprint(rutasForm.creaEdificio_bp)
+
 @app.route('/usuario-reserva')
 def usuarioReserva():
     return render_template('usuario-reserva.html')
 
+
+
 #metodos para filtrar  en busqueda
-import os
 
 @app.route('/')
 def index():
@@ -39,7 +50,6 @@ def index():
     print(session['logged_in'], session['user_id'], session['email'])
 
     # Verificar la estructura de la carpeta 'templates'
-    print("Archivos en la carpeta 'templates':", os.listdir('templates'))
     
     # El resto de tu código sigue igual...
     # Recibir filtros desde el formulario

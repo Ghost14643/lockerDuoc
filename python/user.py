@@ -7,11 +7,11 @@ CORS(app)  # Habilitar CORS
 app.secret_key = 'claveMaestra'
 
 
+@app.route('/crear_edificio')
+def crearEdificio():
+    return render_template('crear_edificio.html')
 
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
 
 # Ruta para el formulario de login
 @app.route('/formLogin', methods=['POST'])

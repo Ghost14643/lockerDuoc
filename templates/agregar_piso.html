@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario para Crear un Nuevo Edificio</title>
+    <style>
+        /* Agrega tus estilos aquí */
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Crear Nuevo Edificio</h2>
+        <form action="/nuevoEdificio" method="POST">
+            <!-- Otros campos de tu formulario -->
+            <div class="form-group">
+                <label for="escuela_Piso">Escuela de piso:</label>
+                <select id="escuela_Piso" name="escuela_Piso" required>
+                    <option value="">Sin escuela</option>
+                    {% for escuela in escuelas %}
+                        <option value="{{ escuela[0] }}">{{ escuela[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Otros campos de tu formulario -->
+            <div class="form-group">
+                <input type="submit" value="Crear Edificio">
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+
+
+<!-- <div class="form-group">
+    <label for="escuela_Piso">Escuela de piso:</label>
+    <select id="escuela_Piso" name="escuela_Piso" required>
+        <option value="">Sin escuela</option>
+    </select>
+</div> -->

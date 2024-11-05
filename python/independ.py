@@ -63,3 +63,4 @@ def add_locker():
     cursor.close()
 
     return redirect('/')
+

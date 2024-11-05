@@ -480,6 +480,34 @@ SET FOREIGN_KEY_CHECKS = 1;
 END //
 DELIMITER ;
 
+
+
+-- -----------------------------------------------------
+-- PROCEDURE p_crearPiso
+-- -----------------------------------------------------
+USE `lockersbd`;
+DROP procedure IF EXISTS `p_crearPiso`;
+
+DELIMITER $$
+USE `lockersbd`$$
+CREATE PROCEDURE `p_crearPiso` (IN cantPisos INT, IN idEdificio INT)
+BEGIN
+	DECLARE i INT DEFAULT 1;
+    WHILE i <= cantPisos DO
+		INSERT INTO `lockersbd`.`piso_edificio` (`idPiso`, `pisoCol`, `edificio_instituto_idEdificioInstituto`, `pisoEscuela_idEscuela`)
+        VALUES (default, cantPisos , idEdificio, null);
+		SET i = i+1;
+	END WHILE;
+    SIGNAL SQLSTATE '01000' SET MESSAGE_TEXT = 'El procedimiento p_crearPiso se ejecutó sin problemas.';
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -9,6 +9,7 @@ logout_bp = Blueprint('logout', __name__)
 lockerJson_bp = Blueprint('lockerJson', __name__)
 formReserva_bp = Blueprint('formReserva', __name__)
 cancelReservation_bp = Blueprint('cancelReservation', __name__)
+creaEdificio_bp = Blueprint('creaEdificio', __name__)
 
 @formLogin_bp.route('/formLogin', methods=['POST'])
 def formLogin():
@@ -149,3 +150,17 @@ def cancel_reservation():
     cursor.close()
     return redirect('/')  # Redirige al índice después de cancelar
 
+@creaEdificio_bp.route('/creaEdificio', methods=['POST'])
+def nuevoEdificio():
+    nombre = request.form['nombre']
+    numero_pisos = request.form['numero_pisos']
+    cursor = mysql.connection.cursor()
+    cursor.execute("INSERT INTO `lockersbd`.`edificio_instituto` (`letraEdificio`) VALUES (%s)", (nombre,))
+    if numero_pisos:
+        cursor.execute("SELECT idEdificioInstituto FROM lockersbd.edificio_instituto WHERE letraEdificio = %s" ,(nombre,))
+        newEdificioId  = cursor.fetchone()
+        cursor.execute("CALL p_crearPiso(%s, %s)", (numero_pisos, newEdificioId[0]))
+    mysql.connection.commit()
+    cursor.close()
+
+    return redirect('/')
