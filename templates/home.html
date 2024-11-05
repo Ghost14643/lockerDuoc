@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locker Duoc</title>
+    <!-- Normalize -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <!-- Estilos personalizados embebidos -->
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #1e3a8a; /* Azul marino */
+        }
+        /* General */
+        .bg-blue-900 {
+            background-color: #1e3a8a;
+        }
+        .bg-blue-800 {
+            background-color: #2c5282;
+        }
+        .text-yellow-500 {
+            color: #d4af37; /* Mostaza tirado a dorado */
+        }
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        .font-bold {
+            font-weight: bold;
+        }
+        /* Sección Inicio */
+        #inicio {
+            background-image: url('{{ url_for('static', filename='img/puerto-montt-portada.jpg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            padding-top: 50px;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+        /* Botones */
+        .bg-yellow-500 {
+            background-color: #d4af37;
+        }
+        .bg-yellow-500:hover {
+            background-color: #b8860b;
+        }
+        /* Formulario de contacto */
+        .formulario-contacto label {
+            color: #1e3a8a;
+        }
+        .formulario-contacto input {
+            border: 1px solid #cbd5e0;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+        .formulario-contacto button {
+            background-color: #d4af37;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: bold;
+        }
+        .formulario-contacto button:hover {
+            background-color: #b8860b;
+        }
+        /* Imágenes */
+        .small-img {
+            max-width: 150px;
+            max-height: 150px;
+            margin: auto;
+            display: block;
+            background-color: #ffffff;
+            border: 2px solid #1e3a8a;
+            padding: 5px;
+        }
+    </style>
+    <link rel="icon" href="{{ url_for('static', filename='img/puerto-montt-portada.jpg') }}">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-900 text-white">
+  <!-- Navbar -->
+  <header class="bg-blue-800">
+    <nav class="flex items-center justify-center p-6 lg:px-8" aria-label="Global">
+      <div class="flex align-center space-x-16">
+        <a href="{{ url_for('index') }}" class="text-sm font-semibold leading-6 text-white">Inicio</a>
+        <a href="{{ url_for('reserva') }}" class="text-sm font-semibold leading-6 text-white">Reservar Locker</a>
+        <a href="{{ url_for('usuarioReserva') }}" class="text-sm font-semibold leading-6 text-white">Mis Reservas</a>
+        <a href="{{ url_for('cancelacion') }}" class="text-sm font-semibold leading-6 text-white">Cancelar Reserva</a>
+        <a href="{{ url_for('login') }}" class="text-sm font-semibold leading-6 text-white">Iniciar Sesión</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section id="inicio" class="relative flex flex-col items-center justify-center"></section>
+    <div id="reserva" class="block rounded-lg bg-blue-800 shadow-lg text-left py-10 lg:py-32 sm:py-48">
+      <div class="relative isolate px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-yellow-500 sm:text-5xl">Lockers Duoc</h2>
+            <p class="mt-6 text-lg leading-8 text-gray-200">Reserva, cancela y revisa tu Locker </p>
+            <div class="mt-10 flex items-center justify-center gap-x-6">
+              <a href="{{ url_for('login') }}" class="rounded-md bg-yellow-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600">Iniciar Sesión</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" class="relative isolate overflow-hidden bg-white py-24 sm:py-32">
+      <img src="{{ url_for('static', filename='img/LockersDuoc.png') }}" alt="Logo Lockers Duoc" class="small-img" />
+      <div class="container mx-auto px-4 pt-20 pb-10 sm:px-6 sm:pt-40 sm:pb-20">
+        <div class="flex flex-col items-center justify-center">
+          <h2 class="text-3xl font-bold tracking-tight text-blue-900 sm:text-4xl">Contacto</h2>
+          <p class="mt-4 text-lg leading-8 text-blue-900 text-center">¿Tienes preguntas o necesitas asistencia con tu reserva? Contáctanos.</p>
+          <form id="formulario-contacto" class="mt-10 w-full max-w-md flex flex-col items-center">
+            <div class="w-full mb-6">
+              <label for="nombre" class="block mb-2 text-lg font-medium text-blue-900">Nombre completo</label>
+              <input type="text" id="nombre" name="nombre" class="w-full rounded-md border text-gray-700 focus:ring-yellow-500" required>
+            </div>
+            <button type="submit" class="mt-6 bg-yellow-500 text-white font-bold py-3 px-6 rounded-md shadow-md hover:bg-yellow-600">Enviar mensaje</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JQuery -->
+  <script src="{{ url_for('static', filename='vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+  <!-- Scripts personalizados -->
+  <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
