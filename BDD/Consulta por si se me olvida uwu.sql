@@ -74,4 +74,16 @@ select fecha_inicio <= '24-10-27' , fecha_fin >= '2024-11-05' FROM reserva_alumn
 ;
 
 
+
+SELECT idLocker, numeroLocker, pisoCol, letraEdificio, estado_locker_idEstadoLocker FROM locker;
+
+ SELECT idLocker, numeroLocker, pe.pisoCol, ei.letraEdificio , estado_locker_idEstadoLocker
+    FROM locker l 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+    INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
+   
+    ;
+
+
+
 SELECT estado_locker_idEstadoLocker FROM locker WHERE idLocker = 1;

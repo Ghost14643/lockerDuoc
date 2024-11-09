@@ -1,11 +1,14 @@
-from flask import Flask, flash, render_template, request, redirect, session
+from flask import   render_template, request,  session
 from flask_cors import CORS
 from python.dataBaseConnection import get_db  #conexión a la base de datos
 import python.independ as independ
 import python.rutasForm as rutasForm #importa blueprints de rutas con mayor complejidad
+
+
  #aqui solo se ven rutas vinculadas al templates
 
 app, mysql = get_db()
+
 
 
 CORS(app)  # Habilitar CORS
@@ -15,7 +18,9 @@ app.secret_key = 'claveMaestra'
 def page_not_found(e):
     return render_template("404.html"), 404
 
-
+@app.route('/home')
+def home():
+    return render_template('home.html')
 
 @app.route('/crear_edificio')
 def crearEdificio():
@@ -35,10 +40,31 @@ app.register_blueprint(rutasForm.logout_bp)
 # Ruta para crear el edificio
 app.register_blueprint(rutasForm.creaEdificio_bp)
 
+
+
 @app.route('/usuario-reserva')
 def usuarioReserva():
-    return render_template('usuario-reserva.html')
-
+    cursor = mysql.connection.cursor()
+    cursor.execute(""" SELECT idLocker, numeroLocker, pe.pisoCol, ei.letraEdificio , estado_locker_idEstadoLocker
+    FROM locker l 
+    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+    INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
+   """)
+    datos = cursor.fetchall()
+    cursor.close()
+    translated_data = []
+    for locker in datos:
+        idLocker, numeroLocker, pisoCol, letraEdificio, estado = locker
+        if estado == 1:
+            estado_texto = "Disponible"
+        elif estado == 2:
+            estado_texto = "Ocupado"
+        elif estado == 3:
+            estado_texto = "Con Problema"
+        else:
+            estado_texto = "Desconocido"
+        translated_data.append((idLocker, numeroLocker, pisoCol, letraEdificio, estado_texto))
+    return render_template('usuario-reserva.html', datos=translated_data)
 
 
 #metodos para filtrar  en busqueda
@@ -46,19 +72,15 @@ def usuarioReserva():
 @app.route('/')
 def index():
     # Verificamos si el usuario está logueado
-    if session.get('logged_in'):
-        return redirect('/usuario-reserva')  # O cualquier otra página que desees mostrar
-    return render_template('home.html')  # Muestra home.html si no está logueado
+    if not session.get('logged_in'):
+        return render_template('home.html')  # Muestra home.html si no está logueado
+    cursor = mysql.connection.cursor()
 
 
-    # Verificar la estructura de la carpeta 'templates'
-    
-    # El resto de tu código sigue igual...
     # Recibir filtros desde el formulario
     estadoRequest = request.args.get('estado')
     piso = request.args.get('piso')
     edificio = request.args.get('edificio')
-    cursor = mysql.connection.cursor()
 
     # Construir la consulta con filtros
     query = """
@@ -102,8 +124,13 @@ def index():
 
         translated_data.append((idLocker, numeroLocker, pisoCol, letraEdificio, estado_texto))
 
+    # Obtener opciones de edificios desde la base de datos e implementarlos en el label
+    cursor.execute("SELECT DISTINCT pisoCol FROM lockersbd.piso_edificio")
+    labelPiso = cursor.fetchall()
+    cursor.execute("SELECT DISTINCT letraEdificio FROM edificio_instituto")
+    labelEdificios = cursor.fetchall()
     cursor.close()
-    return render_template('index.html', datos=translated_data)
+    return render_template('index.html', datos=translated_data, estado=estadoRequest, piso=piso, edificio=edificio, labelEdificios=labelEdificios, labelPiso=labelPiso)
 
 # Nueva ruta para mostrar la reserva activa de un locker
 
@@ -156,5 +183,17 @@ def cancelacion():
 # Ruta para cancelar una reserva
 app.register_blueprint(rutasForm.cancelReservation_bp)
 
+
+
+
+
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    o = "1" #literal esto solo sirve para que el terminal reconozca la variable kajskajsdasa
+    if o == "1":
+        app.run(debug=True)
+    elif o == "2":
+        app.run(host='0.0.0.0')
+    else:
+        print("Opción no válida. Por favor, elige 1 o 2.")
