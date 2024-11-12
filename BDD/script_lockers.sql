@@ -223,27 +223,23 @@ INSERT INTO `lockersBD`.`piso_edificio` (`idPiso`, `pisoCol`, `edificio_institut
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `lockersBD`.`locker` ;
 
-CREATE TABLE IF NOT EXISTS `lockersBD`.`locker` (
-  `idLocker` INT NOT NULL AUTO_INCREMENT,
-  `numeroLocker` INT NOT NULL,
-  `piso_edificio_idPiso` INT NOT NULL,
-  `estado_locker_idEstadoLocker` INT NOT NULL,
-  PRIMARY KEY (`idLocker`),
-  INDEX `fk_locker_piso_edificio1_idx` (`piso_edificio_idPiso` ASC) VISIBLE,
-  INDEX `fk_locker_estado_locker1_idx` (`estado_locker_idEstadoLocker` ASC) VISIBLE,
-  CONSTRAINT `fk_locker_piso_edificio1`
-    FOREIGN KEY (`piso_edificio_idPiso`)
-    REFERENCES `lockersBD`.`piso_edificio` (`idPiso`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_locker_estado_locker1`
-    FOREIGN KEY (`estado_locker_idEstadoLocker`)
-    REFERENCES `lockersBD`.`estado_locker` (`idEstadoLocker`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+CREATE TABLE IF NOT EXISTS `locker` (
+    `idLocker` int NOT NULL AUTO_INCREMENT,
+    `numeroLocker` int NOT NULL,
+    `piso_edificio_idPiso` int NOT NULL,
+    `estado_locker_idEstadoLocker` int NOT NULL,
+    `secretKey` varchar(45) NOT NULL,
+    PRIMARY KEY (`idLocker`),
+    KEY `fk_locker_piso_edificio1_idx` (`piso_edificio_idPiso`),
+    KEY `fk_locker_estado_locker1_idx` (
+        `estado_locker_idEstadoLocker`
+    ),
+    CONSTRAINT `fk_locker_estado_locker1` FOREIGN KEY (
+        `estado_locker_idEstadoLocker`
+    ) REFERENCES `estado_locker` (`idEstadoLocker`),
+    CONSTRAINT `fk_locker_piso_edificio1` FOREIGN KEY (`piso_edificio_idPiso`) REFERENCES `piso_edificio` (`idPiso`)
+) ENGINE = InnoDB AUTO_INCREMENT = 40 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+
 
 -- -----------------------------------------------------
 -- Table `lockersBD`.`reserva`

@@ -41,6 +41,18 @@ def escuela_lockerEstudiante(rutEstudiante, id_locker): #Valida si la escuela as
         return True if idEscuelaAlumno[0] == idEscuelaPiso[0] or idEscuelaPiso[0] is None else False
     return False #Retorna True o False si son iguales o no, asimismo si la escuela no retorna, representa que el locker es libre de esa restriccion 
 
+def usuarioPatudo(runAlumno): #identifica si el usuario ya tiene un locker en uso
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT COUNT(*)
+                    FROM reserva_alumno
+                    WHERE alumno_runAlumno = %s 
+                    AND fecha_fin = sysdate()
+                    AND fecha_fin = (SELECT MAX(fecha_fin) FROM reserva_alumno)""",(runAlumno,))
+    yaTieneLocker = cursor.fetchall()
+    cursor.close()
+    return yaTieneLocker[0][0] if yaTieneLocker else current_app.page_not_found()
+
+
 def dispoCalendar(lockerId,start,end): #comprueba la disponibilidad por calendario
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT fecha_inicio , fecha_fin FROM reserva_alumno WHERE locker_idLocker= %s",(lockerId,))
@@ -63,4 +75,3 @@ def add_locker():
     cursor.close()
 
     return redirect('/')
-
