@@ -501,6 +501,135 @@ DELIMITER ;
 
 
 
+USE `lockersbd`;
+DROP procedure IF EXISTS `p_venceReserva`;
+
+USE `lockersbd`;
+DROP procedure IF EXISTS `lockersbd`.`p_venceReserva`;
+;
+
+DELIMITER $$
+USE `lockersbd`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `p_venceReserva`()
+BEGIN
+  DECLARE done INT DEFAULT 0;
+  DECLARE lockerId INT;
+  DECLARE currentTime DATETIME;
+	DECLARE cur_recorrerLocker CURSOR FOR 
+        SELECT idLocker 
+        FROM locker;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    SET currentTime = NOW();
+    OPEN cur_recorrerLocker;
+    l_recorrido: LOOP
+        FETCH cur_recorrerLocker INTO lockerId;
+        
+        IF done THEN
+            LEAVE l_recorrido;
+        END IF;
+        IF EXISTS (
+            SELECT 1 
+            FROM reserva_alumno
+            WHERE locker_idLocker = lockerId
+            AND estadoReserva_idEstadoReserva = 1
+            AND fecha_fin < currentTime
+            LIMIT 1) THEN
+            
+            UPDATE locker
+            SET estado_locker_idEstadoLocker = 1
+            WHERE idLocker = lockerId;
+
+            UPDATE reserva_alumno 
+            SET estadoReserva_idEstadoReserva = 2
+            WHERE locker_idLocker = lockerId 
+            AND estadoReserva_idEstadoReserva = 1
+            AND fecha_fin < currentTime;
+        END IF;
+    END LOOP;
+    
+    CLOSE cur_recorrerLocker;
+    END$$
+
+DELIMITER ;
+;
+
+USE `lockersbd`;
+DROP procedure IF EXISTS `p_claveLockers`;
+
+USE `lockersbd`;
+DROP procedure IF EXISTS `lockersbd`.`p_claveLockers`;
+;
+
+
+
+
+USE `lockersbd`;
+DROP procedure IF EXISTS `p_claveLockers`;
+
+USE `lockersbd`;
+DROP procedure IF EXISTS `lockersbd`.`p_claveLockers`;
+;
+
+DELIMITER $$
+USE `lockersbd`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `p_claveLockers`()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE nueva_clave VARCHAR(45);
+    DECLARE lockerId INT;
+    DECLARE cur_recorrerLocker CURSOR FOR 
+    SELECT idLocker 
+    FROM locker;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+	OPEN cur_recorrerLocker;
+    l_recorrido: LOOP
+        FETCH cur_recorrerLocker INTO lockerId;
+        
+        IF done THEN
+            LEAVE l_recorrido;
+        END IF;
+        IF EXISTS (
+            SELECT 1 
+            FROM locker
+            WHERE idLocker = lockerId
+            LIMIT 1) THEN
+
+            SET nueva_clave = TO_BASE64(SUBSTRING(CONCAT(MD5(RAND()), MD5(RAND())), 1, 32));
+            UPDATE `lockersbd`.`locker` SET `secretKey` = nueva_clave WHERE (`idLocker` = lockerId);
+
+
+        END IF;
+    END LOOP;
+    CLOSE cur_recorrerLocker;
+END$$
+
+DELIMITER ;
+;
+
+
+CREATE TABLE `lockersbd`.`registro_lockers` (
+  `idRegistro` INT NOT NULL AUTO_INCREMENT,
+  `idLocker` INT NOT NULL,
+  `RunAlumno` INT(8) NOT NULL,
+  `fechaIngreso` DATE NOT NULL,
+  `horaIngreso` TIME NOT NULL,
+  PRIMARY KEY (`idRegistro`),
+  INDEX `fk_alumno_runAlumno_idx` (`RunAlumno` ASC) VISIBLE,
+  INDEX `fk_locker_idLocker _idx` (`idLocker` ASC) VISIBLE,
+  CONSTRAINT `fk_alumno_runAlumno`
+    FOREIGN KEY (`RunAlumno`)
+    REFERENCES `lockersbd`.`alumno` (`runAlumno`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_locker_idLocker `
+    FOREIGN KEY (`idLocker`)
+    REFERENCES `lockersbd`.`locker` (`idLocker`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+
 
 
 

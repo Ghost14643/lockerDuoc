@@ -4,43 +4,67 @@ import qrcode
 from cryptography.fernet import Fernet
 import time
 el = "--------------------------------------"
+import mysql.connector
+
+mysql = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="jDXgT61EhWinGAx0Wy2H",
+    database="lockersbd"
+)
 # @app.route('/')
 # def index():
 #     return "TEST"
-def crearKey():
-    key = Fernet.generate_key()
+# def crearKey():
+#     key = Fernet.generate_key()
 
-    # Guarda la clave para su uso posterior
-    with open('secret.key', 'wb') as key_file:
-        key_file.write(key)
-    return key
+#     # Guarda la clave para su uso posterior
+#     with open('secret.key', 'wb') as key_file:
+#         key_file.write(key)
+#     return key
+# try:
+#     #Carga la clave de la raiz del proyecto y lo almacena como constante
+#     with open('secret.key', 'rb') as key_file:
+#      key = key_file.read()
+#      cipher = Fernet(key)
 
-    
+# except FileNotFoundError: #si no encuentra el archivo, creara uno nuevo
+#     keyCreado=crearKey()
+#     cipher = Fernet(keyCreado)
+cursor = mysql.cursor()
+runAlumno=21300379
+cursor.execute("""SELECT secretKey , locker_idLocker, alumno_runAlumno, numeroLocker FROM reserva_alumno ra
+INNER JOIN locker l ON ra.locker_idLocker = l.idLocker
+WHERE
+estadoReserva_idEstadoReserva = 1 AND
+alumno_runAlumno = %s LIMIT 1 """ , (runAlumno,))
+key = cursor.fetchone()
+cursor.close()
 
-try:
-    #Carga la clave de la raiz del proyecto y lo almacena como constante
-    with open('secret.key', 'rb') as key_file:
-     key = key_file.read()
-     cipher = Fernet(key)
-
-except FileNotFoundError: #si no encuentra el archivo, creara uno nuevo
-    keyCreado=crearKey()
-    cipher = Fernet(keyCreado)
+# Cargar clave y almacenar en la raiz
+# with open('secret.key', 'rb') as key_file:
+#     key = key_file.read()
+print(key[0])
 
 
+cipher = Fernet(key[0])
 
 
-# Datos a codificar (ejemplo: locker ID y token)
+# Datos a codificar
 locker_id = 'locker1'
-runEstudiante = int(21300379)
-token_data = f'{locker_id}:{runEstudiante}:{int(time.time()) + 300}'  # Token expira en 5 minutos
+
+#creacion del token
+token_data = f'{locker_id}:{runAlumno}:{int(time.time()) + 300}'  # Token expira en 5 minutos
 
 # Cifra los datos
 encrypted_data = cipher.encrypt(token_data.encode())
 
 # Genera el código QR
 qr = qrcode.QRCode(version=1, box_size=10, border=5)
+qr.add_data(runAlumno)
+qr.add_data("|")
 qr.add_data(encrypted_data)
+print(encrypted_data)
 qr.make(fit=True)
 img = qr.make_image(fill='black', back_color='white')
 
