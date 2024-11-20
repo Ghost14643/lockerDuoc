@@ -81,24 +81,14 @@ def index():
     estadoRequest = request.args.get('estado')
     piso = request.args.get('piso')
     edificio = request.args.get('edificio')
-
     # Construir la consulta con filtros
-    query = """
-    SELECT idLocker, numeroLocker, pe.pisoCol, ei.letraEdificio , estado_locker_idEstadoLocker
-    FROM locker l 
-    INNER JOIN piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
-    INNER JOIN edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
-    WHERE 1=1
-    """
-    params = []
-
-    cursor.execute(query, params)
+    cursor.execute( "SELECT * FROM lockersbd.v_index")
     datos = cursor.fetchall()
 
     # Traducir el estado
     translated_data = []
     for locker in datos:
-        idLocker, numeroLocker, pisoCol, letraEdificio , estado = locker
+        idLocker, numeroLocker, pisoCol, letraEdificio , estado, alumno= locker
 
 
         # aplicando los filtroos :D
@@ -110,6 +100,9 @@ def index():
 
         if edificio and independ.filtroEdificio(idLocker) != edificio:
             continue 
+
+        # if alumno and independ.filtroLockerAlumno(alumno) != alumno:
+        #     continue
 
 
         # Traducir el estado del locker

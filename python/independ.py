@@ -2,6 +2,14 @@ from flask import current_app, request,redirect
 from python.dataBaseConnection import get_db
 app, mysql = get_db()
 
+
+# def filtroLockerAlumno(runAlumno):
+#     cursor = mysql.connection.cursor()
+#     cursor.execute("SELECT * FROM reserva_alumno  where run",(runAlumno))
+#     lockerAlumno = cursor.fetchall()
+#     cursor.close()
+#     return lockerAlumno if lockerAlumno is not None else None
+
 #filtros de busqueda
 def filtroEstado(idLocker):
     cursor = mysql.connection.cursor()

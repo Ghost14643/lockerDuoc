@@ -74,3 +74,24 @@ INNER JOIN locker l ON ra.locker_idLocker = l.idLocker
 WHERE
 estadoReserva_idEstadoReserva = 1 AND
 alumno_runAlumno = 21300379 
+
+SELECT 
+    l.idLocker AS idLocker,
+    l.numeroLocker AS numeroLocker,
+    pe.pisoCol AS pisoCol,
+    ei.letraEdificio AS letraEdificio,
+    l.estado_locker_idEstadoLocker AS estado_locker_idEstadoLocker,
+    CASE
+        WHEN MAX(estado_locker_idEstadoLocker) = 2 THEN MAX(ra.alumno_runAlumno)
+        ELSE NULL
+    END AS alumno_runAlumno
+FROM
+    locker l
+JOIN 
+    piso_edificio pe ON l.piso_edificio_idPiso = pe.idPiso
+JOIN 
+    edificio_instituto ei ON pe.edificio_instituto_idEdificioInstituto = ei.idEdificioInstituto
+LEFT JOIN 
+    reserva_alumno ra ON ra.locker_idLocker = l.idLocker
+GROUP BY 
+    l.idLocker, l.numeroLocker, pe.pisoCol, ei.letraEdificio, l.estado_locker_idEstadoLocker;
